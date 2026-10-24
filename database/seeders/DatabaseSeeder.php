@@ -12,14 +12,24 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * On the live server this only adds the website content and rates; make the
+     * owner's login there with `php artisan app:create-admin`.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(ContentSeeder::class);
+
+        if (app()->isProduction()) {
+            return;
+        }
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Northgate Admin',
+            'email' => 'admin@northgate.example',
+            'is_admin' => true,
         ]);
+
+        $this->call(DemoShipmentSeeder::class);
     }
 }

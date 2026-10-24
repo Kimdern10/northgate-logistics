@@ -160,8 +160,8 @@ return [
     |
     */
 
+    // No public sign-up: staff logins are made with `php artisan app:create-admin`.
     'features' => [
-        Features::registration(),
         Features::resetPasswords(),
         Features::emailVerification(),
         Features::twoFactorAuthentication([
