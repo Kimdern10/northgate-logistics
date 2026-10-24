@@ -109,8 +109,8 @@ class ContentSeeder extends Seeder
             ],
             ServiceLevel::Economy->value => [
                 Zone::Domestic->value => [4, 0.4, 3, 6],
-                Zone::Regional->value => [30, 1.8, 10, 20],
-                Zone::International->value => [45, 2.2, 25, 45],
+                Zone::Regional->value => [12, 1.8, 10, 20],
+                Zone::International->value => [15, 2.2, 25, 45],
             ],
         ];
 
