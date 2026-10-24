@@ -58,7 +58,7 @@ new #[Title('Quote requests')] class extends Component {
 <div class="flex flex-col gap-6">
     <div>
         <flux:heading size="xl">Quote requests</flux:heading>
-        <flux:text>Messages from the contact form: custom quotes, warehousing, fulfilment and business accounts.</flux:text>
+        <flux:text>Messages from the contact form: custom quotes, warehousing, fulfillment and business accounts.</flux:text>
     </div>
 
     <flux:radio.group wire:model.live="status" variant="segmented" class="max-w-xl">

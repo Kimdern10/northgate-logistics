@@ -18,7 +18,7 @@ test('values start with code B, end with the stop code and carry the checksum', 
 });
 
 test('the svg draws bars', function () {
-    $svg = Barcode::svg('NG1000000001');
+    $svg = Barcode::svg('NT1000000001');
 
     expect($svg)->toStartWith('<svg')
         // start + 12 characters + checksum have 3 bars each; the stop code has 4

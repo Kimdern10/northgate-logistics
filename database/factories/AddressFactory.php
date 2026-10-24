@@ -24,10 +24,10 @@ class AddressFactory extends Factory
             'name' => fake()->name(),
             'company' => null,
             'email' => fake()->safeEmail(),
-            'phone' => '+234 80'.fake()->numerify('# ### ####'),
+            'phone' => '+1 (212) 555-'.fake()->numerify('####'),
             'address' => fake()->streetAddress(),
-            'city' => 'Lagos',
-            'country' => 'NG',
+            'city' => 'New York',
+            'country' => 'US',
             'is_default' => false,
         ];
     }

@@ -38,7 +38,7 @@ class Enquiry extends Model
     public const array TYPES = [
         'quote' => 'Shipping quote',
         'warehousing' => 'Warehousing',
-        'fulfilment' => 'E-commerce fulfilment',
+        'fulfillment' => 'E-commerce fulfillment',
         'business' => 'Business account',
         'general' => 'General question',
     ];

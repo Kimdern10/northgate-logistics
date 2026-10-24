@@ -35,7 +35,7 @@ test('an enquiry is saved and sent to the office', function () {
 });
 
 test('the type can be picked from a link', function () {
-    Livewire::withQueryParams(['type' => 'fulfilment'])->test('pages::contact')->assertSet('type', 'fulfilment');
+    Livewire::withQueryParams(['type' => 'fulfillment'])->test('pages::contact')->assertSet('type', 'fulfillment');
     Livewire::withQueryParams(['type' => 'nonsense'])->test('pages::contact')->assertSet('type', 'general');
 });
 

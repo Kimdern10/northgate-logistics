@@ -9,9 +9,9 @@ enum Zone: string
 {
     /** Same country. */
     case Domestic = 'domestic';
-    /** Another country in the same region, e.g. UK to Germany. */
+    /** Another country in the same region, e.g. USA to Canada. */
     case Regional = 'regional';
-    /** Another region, e.g. USA to Nigeria. */
+    /** Another region, e.g. USA to the UK. */
     case International = 'international';
 
     public function label(): string

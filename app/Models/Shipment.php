@@ -127,12 +127,12 @@ class Shipment extends Model
     }
 
     /**
-     * A number like "NG4827301956": two letters and ten digits, easy to read out over the phone.
+     * A number like "NT4827301956": two letters and ten digits, easy to read out over the phone.
      */
     public static function newTrackingNumber(): string
     {
         do {
-            $number = 'NG'.random_int(1, 9).Str::padLeft((string) random_int(0, 999_999_999), 9, '0');
+            $number = 'NT'.random_int(1, 9).Str::padLeft((string) random_int(0, 999_999_999), 9, '0');
         } while (static::query()->where('tracking_number', $number)->exists());
 
         return $number;

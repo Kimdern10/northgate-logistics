@@ -53,7 +53,11 @@ class Branch extends Model
     #[Scope]
     protected function published(Builder $query): void
     {
-        $query->where('is_active', true)->orderByDesc('is_hub')->orderBy('country')->orderBy('city');
+        // US locations first, then hubs before branches.
+        $query->where('is_active', true)
+            ->orderByRaw("case when country = 'US' then 0 else 1 end")
+            ->orderByDesc('is_hub')
+            ->orderBy('city');
     }
 
     public function countryName(): string

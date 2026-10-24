@@ -82,7 +82,7 @@ new class extends Component {
     public function render()
     {
         return $this->view()
-            ->layout('layouts::site', ['current' => 'contact', 'description' => 'Talk to our team about freight, warehousing, fulfilment or a business account.'])
+            ->layout('layouts::site', ['current' => 'contact', 'description' => 'Talk to our team about freight, warehousing, fulfillment or a business account.'])
             ->title('Contact us');
     }
 }; ?>
@@ -94,7 +94,7 @@ new class extends Component {
         <div class="container">
             <p class="eyebrow" data-reveal>Contact</p>
             <h1 data-reveal>Let's move your goods.</h1>
-            <p class="lead" data-reveal>Ask for a custom freight quote, warehouse space or a fulfilment plan. We reply within one working day.</p>
+            <p class="lead" data-reveal>Ask for a custom freight quote, warehouse space or a fulfillment plan. We reply within one working day.</p>
         </div>
     </section>
 
@@ -124,7 +124,7 @@ new class extends Component {
                             <x-field label="Email" model="email" type="email" autocomplete="email" />
                             <x-field label="Phone (optional)" model="phone" type="tel" autocomplete="tel" />
                         </div>
-                        @if (in_array($type, ['warehousing', 'fulfilment', 'business', 'quote'], true))
+                        @if (in_array($type, ['warehousing', 'fulfillment', 'business', 'quote'], true))
                             <x-field label="Roughly how much per month? (optional)" model="monthly_volume" placeholder="e.g. 300 orders, 2 pallets, 1 container" />
                         @endif
                         <label class="field @error('message') field--invalid @enderror">

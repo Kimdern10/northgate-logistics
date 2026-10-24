@@ -12,7 +12,7 @@
             <h1 data-reveal>Where's my shipment?</h1>
             <form class="track-inline" action="{{ route('track') }}" method="get" data-reveal>
                 <label class="sr-only" for="track-number">Tracking number</label>
-                <input id="track-number" name="number" value="{{ $number }}" placeholder="Tracking number, e.g. NG4827301956" autocomplete="off" required>
+                <input id="track-number" name="number" value="{{ $number }}" placeholder="Tracking number, e.g. NT4827301956" autocomplete="off" required>
                 <button class="btn btn--primary" type="submit"><x-icon name="search" /> Track</button>
             </form>
             <p class="hint" data-reveal>Track up to {{ \App\Http\Controllers\TrackingController::MAX_AT_ONCE }} at once: separate the numbers with commas or spaces.</p>
@@ -107,7 +107,7 @@
                 </div>
             @else
                 <div class="track-help" data-reveal>
-                    <div class="card"><x-icon name="search" /><h2>Your tracking number</h2><p>It's on your waybill and in your booking email. It starts with NG and has 12 characters.</p></div>
+                    <div class="card"><x-icon name="search" /><h2>Your tracking number</h2><p>It's on your waybill and in your booking email. It starts with NT and has 12 characters, e.g. NT4827301956.</p></div>
                     <div class="card"><x-icon name="mail" /><h2>Email updates</h2><p>We email the sender (and the receiver, if we have their email) every time the status changes.</p></div>
                     <div class="card"><x-icon name="phone" /><h2>Need help?</h2><p>Call {{ \App\Models\Setting::get('phone') }} or <a href="{{ route('contact') }}" wire:navigate.hover>send us a message</a>.</p></div>
                 </div>

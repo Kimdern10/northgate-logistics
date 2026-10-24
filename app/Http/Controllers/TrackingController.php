@@ -22,8 +22,8 @@ class TrackingController extends Controller
     {
         $input = (string) $request->query('number', '');
 
-        // Pick out every "NG + 10 digits", even typed with spaces or dashes inside ("NG 482-730 1956").
-        preg_match_all('/n\s*g(?:[\s\-]*\d){10}/i', $input, $matches);
+        // Pick out every "NT + 10 digits", even typed with spaces or dashes inside ("NT 482-730 1956").
+        preg_match_all('/n\s*t(?:[\s\-]*\d){10}/i', $input, $matches);
 
         $numbers = collect($matches[0] ?: [$input])
             ->map(fn (string $number): string => Shipment::normaliseTrackingNumber($number))

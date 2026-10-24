@@ -11,7 +11,7 @@ use Livewire\Component;
 
 new class extends Component {
     #[Url(as: 'from')]
-    public string $fromCountry = 'NG';
+    public string $fromCountry = 'US';
 
     #[Url(as: 'to')]
     public string $toCountry = 'GB';

@@ -46,7 +46,7 @@
 
         <div class="container hero-grid">
             <div class="hero-copy">
-                <p class="eyebrow eyebrow--light" data-reveal>International shipping · Warehousing · Fulfilment</p>
+                <p class="eyebrow eyebrow--light" data-reveal>International shipping · Warehousing · Fulfillment</p>
                 <h1 data-reveal>{{ $site['hero_title'] }}</h1>
                 <p class="lead" data-reveal>{{ $site['hero_text'] }}</p>
                 <div class="btn-row" data-reveal>
@@ -69,7 +69,7 @@
                 <form id="tab-track" role="tabpanel" aria-labelledby="tab-track-btn" class="tab-panel" action="{{ route('track') }}" method="get">
                     <label class="field">
                         <span>Tracking number(s)</span>
-                        <input name="number" placeholder="e.g. NG4827301956" autocomplete="off" required>
+                        <input name="number" placeholder="e.g. NT4827301956" autocomplete="off" required>
                     </label>
                     <button class="btn btn--primary btn--block" type="submit">Track shipment</button>
                     <p class="hint">On your waybill or booking email. Track up to 10 at once, separated by commas.</p>
@@ -81,7 +81,7 @@
                             <span>From</span>
                             <select name="from">
                                 @foreach ($countries as $code => $name)
-                                    <option value="{{ $code }}" @selected($code === 'NG')>{{ $name }}</option>
+                                    <option value="{{ $code }}" @selected($code === 'US')>{{ $name }}</option>
                                 @endforeach
                             </select>
                         </label>
@@ -107,7 +107,7 @@
     <div class="ticker" aria-hidden="true">
         <div class="ticker-track">
             @foreach (range(1, 2) as $copy)
-                @foreach (['Air express', 'Sea freight', 'Customs clearance', 'Bonded warehousing', 'Pick, pack & ship', 'Returns handling', 'Door-to-door tracking', 'Cargo insurance'] as $item)
+                @foreach (['Air express', 'Ocean freight', 'Customs clearance', 'Bonded warehousing', 'Pick, pack & ship', 'Returns handling', 'Door-to-door tracking', 'Cargo insurance'] as $item)
                     <span>{{ $item }}</span>
                 @endforeach
             @endforeach
@@ -163,10 +163,10 @@
                 [$site['stat_years'], '', 'years moving cargo'],
                 [$site['stat_countries'], '', 'countries served'],
                 [$site['stat_deliveries'], '+', 'parcels delivered'],
-                [$site['stat_warehouse_sqm'], ' m²', 'warehouse space'],
+                [$site['stat_warehouse_sqm'], ' sq ft', 'warehouse space'],
             ] as [$number, $suffix, $label])
                 <div class="stat" data-reveal>
-                    <strong><span data-count="{{ (int) $number }}">{{ number_format((int) $number) }}</span>{{ $suffix }}</strong>
+                    <strong><span data-count="{{ (int) $number }}">{{ number_format((int) $number) }}</span><small>{{ $suffix }}</small></strong>
                     <span>{{ $label }}</span>
                 </div>
             @endforeach

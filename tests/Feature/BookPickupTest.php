@@ -67,7 +67,7 @@ test('booking a pickup creates a priced shipment and its first update', function
         ->and($shipment->source)->toBe('website')
         ->and($shipment->service_level)->toBe(ServiceLevel::Express)
         ->and($shipment->price_cents)->toBe(3500 + 3 * 1100)
-        ->and($shipment->tracking_number)->toMatch('/^NG\d{10}$/')
+        ->and($shipment->tracking_number)->toMatch('/^NT\d{10}$/')
         ->and($shipment->estimated_delivery_date)->not->toBeNull()
         ->and($shipment->events()->sole()->status)->toBe(ShipmentStatus::Booked);
 });

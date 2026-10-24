@@ -7,9 +7,10 @@
 
 @php
     $site = \App\Models\Setting::values();
-    $pageTitle = filled($title) ? $title.' · '.$site['business_name'] : $site['business_name'].' · International shipping, warehousing & fulfilment';
+    $pageTitle = filled($title) ? $title.' · '.$site['business_name'] : $site['business_name'].' · International shipping, warehousing & fulfillment';
     $metaDescription = $description ?: $site['tagline'];
     $links = [
+        'home' => ['Home', route('home')],
         'services' => ['Services', route('services.index')],
         'track' => ['Track', route('track')],
         'quote' => ['Get a quote', route('quote')],
@@ -17,7 +18,7 @@
         'about' => ['About', route('about')],
         'contact' => ['Contact', route('contact')],
     ];
-    $organisation = [
+    $organization = [
         '@context' => 'https://schema.org',
         '@type' => 'Organization',
         'name' => $site['business_name'],
@@ -50,7 +51,7 @@
         @fonts('plus-jakarta-sans')
         @vite(['resources/css/site.css', 'resources/js/site.js'])
         @livewireStyles
-        <script type="application/ld+json">{!! json_encode($jsonLd ?? $organisation, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+        <script type="application/ld+json">{!! json_encode($jsonLd ?? $organization, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     </head>
     <body>
         <a class="skip" href="#main">Skip to content</a>
@@ -83,7 +84,6 @@
         </header>
 
         <nav class="mobile-menu" id="mobile-menu" aria-label="Main (mobile)">
-            <a href="{{ route('home') }}" wire:navigate.hover>Home</a>
             @foreach ($links as [$label, $href])
                 <a href="{{ $href }}" wire:navigate.hover>{{ $label }}</a>
             @endforeach

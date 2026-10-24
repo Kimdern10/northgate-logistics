@@ -106,7 +106,7 @@ new #[Title('Testimonials')] class extends Component {
         <form wire:submit="save" class="flex flex-col gap-4">
             <flux:heading size="lg">{{ $editingId ? 'Edit testimonial' : 'Add testimonial' }}</flux:heading>
             <flux:input wire:model="name" label="Customer name" />
-            <flux:input wire:model="role" label="Role / company" placeholder="Founder, Ada's Fabrics" />
+            <flux:input wire:model="role" label="Role / company" placeholder="Founder, Carter & Co. Apparel" />
             <flux:textarea wire:model="quote" rows="4" label="Quote" />
             <div class="grid gap-4 sm:grid-cols-3">
                 <flux:select wire:model="rating" label="Stars">

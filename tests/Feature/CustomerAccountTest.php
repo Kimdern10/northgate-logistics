@@ -77,10 +77,10 @@ test("other people's shipments are refused", function () {
 test('a customer can add a shipment by tracking number and gets its emails', function () {
     Mail::fake();
     $user = customer();
-    $shipment = Shipment::factory()->create(['tracking_number' => 'NG5550001111', 'sender_email' => null, 'receiver_email' => null, 'receiver_address' => '9 Secret Road']);
+    $shipment = Shipment::factory()->create(['tracking_number' => 'NT5550001111', 'sender_email' => null, 'receiver_email' => null, 'receiver_address' => '9 Secret Road']);
 
     Livewire::actingAs($user)->test('pages::account.dashboard')
-        ->set('trackingNumber', 'ng 555 000 1111')
+        ->set('trackingNumber', 'nt 555 000 1111')
         ->call('watch')
         ->assertHasNoErrors();
 
@@ -93,7 +93,7 @@ test('a customer can add a shipment by tracking number and gets its emails', fun
 
 test('an unknown tracking number cannot be added', function () {
     Livewire::actingAs(customer())->test('pages::account.dashboard')
-        ->set('trackingNumber', 'NG0000000000')
+        ->set('trackingNumber', 'NT0000000000')
         ->call('watch')
         ->assertHasErrors('trackingNumber');
 });
@@ -107,7 +107,7 @@ test('the tracking page can add the shipment to my account', function () {
         ->assertRedirect(route('account.shipments.show', $shipment));
 
     expect($user->watchedShipments()->whereKey($shipment->id)->exists())->toBeTrue();
-    $this->post(route('track.watch', 'NG0000000000'))->assertNotFound();
+    $this->post(route('track.watch', 'NT0000000000'))->assertNotFound();
 });
 
 test('guests are asked to log in to follow a shipment', function () {

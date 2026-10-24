@@ -22,7 +22,7 @@ class TrackingEventFactory extends Factory
         return [
             'shipment_id' => Shipment::factory(),
             'status' => ShipmentStatus::Booked,
-            'location' => 'Lagos, Nigeria',
+            'location' => 'New York, United States',
             'description' => null,
             'happened_at' => now(),
         ];

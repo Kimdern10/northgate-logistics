@@ -146,7 +146,7 @@ new class extends Component {
                         </flux:select>
                         <flux:input wire:model="happened_at" type="datetime-local" label="Date and time" />
                     </div>
-                    <flux:input wire:model="location" label="Location" placeholder="e.g. Lagos Hub, Nigeria" />
+                    <flux:input wire:model="location" label="Location" placeholder="e.g. JFK Airport Hub, New York" />
                     <flux:input wire:model="description" label="Note (optional, shown to the customer)" placeholder="e.g. Departed on flight to London" />
                     @if ($status === ShipmentStatus::Delivered->value)
                         <flux:input wire:model="received_by" label="Received by (optional)" />

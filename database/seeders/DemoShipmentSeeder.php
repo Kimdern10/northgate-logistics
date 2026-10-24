@@ -14,7 +14,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Sample shipments at every stage, with realistic timelines, for local testing only.
- * Demo tracking numbers NG1000000001 to NG1000000005 are easy to type in.
+ * Demo tracking numbers NT1000000001 to NT1000000005 are easy to type in.
  */
 class DemoShipmentSeeder extends Seeder
 {
@@ -22,40 +22,47 @@ class DemoShipmentSeeder extends Seeder
      * @var array<string, string>
      */
     private const array HUBS = [
-        'NG' => 'Lagos Airport Hub',
-        'GB' => 'London Heathrow Hub',
-        'US' => 'Houston Branch',
-        'AE' => 'Dubai Hub',
-        'CN' => 'Guangzhou Branch',
-        'GH' => 'Accra Branch',
-        'ZA' => 'Johannesburg Branch',
+        'New York' => 'JFK Airport Hub',
+        'Los Angeles' => 'Los Angeles Hub',
+        'Miami' => 'Miami Hub',
+        'Chicago' => 'Chicago Branch',
+        'Houston' => 'Houston Branch',
+        'Dallas' => 'Dallas Fulfillment Center',
+        'Austin' => 'Dallas Fulfillment Center',
+        'Atlanta' => 'Atlanta Branch',
+        'Seattle' => 'Los Angeles Hub',
+        'Boston' => 'JFK Airport Hub',
+        'GB' => 'London Heathrow Partner Hub',
+        'AE' => 'Dubai Partner Hub',
+        'HK' => 'Hong Kong Partner Hub',
+        'CN' => 'Hong Kong Partner Hub',
     ];
 
     public function run(): void
     {
         // [tracking number or null, from city, from country, to city, to country, service, stage reached, contents, kg]
         $shipments = [
-            ['NG1000000001', 'Lagos', 'NG', 'London', 'GB', ServiceLevel::Express, 3, 'Fashion samples', 4.5],
-            ['NG1000000002', 'Abuja', 'NG', 'Houston', 'US', ServiceLevel::Standard, 7, 'University documents', 0.8],
-            ['NG1000000003', 'Guangzhou', 'CN', 'Lagos', 'NG', ServiceLevel::Economy, 6, 'Phone accessories (2 cartons)', 64],
-            ['NG1000000004', 'Lagos', 'NG', 'Toronto', 'CA', ServiceLevel::Express, 0, 'Gift box: clothes and snacks', 6.2],
-            ['NG1000000005', 'Port Harcourt', 'NG', 'Dubai', 'AE', ServiceLevel::Standard, -1, 'Oil field spare parts', 18],
-            [null, 'London', 'GB', 'Accra', 'GH', ServiceLevel::Express, 7, 'Medical textbooks', 7.5],
-            [null, 'Lagos', 'NG', 'Manchester', 'GB', ServiceLevel::Standard, 4, 'Ankara fabric rolls', 22],
-            [null, 'Houston', 'US', 'Lagos', 'NG', ServiceLevel::Economy, 2, 'Household goods', 140],
-            [null, 'Dubai', 'AE', 'Abuja', 'NG', ServiceLevel::Express, 5, 'Laptop and accessories', 3.2],
-            [null, 'Lagos', 'NG', 'Accra', 'GH', ServiceLevel::Standard, 7, 'Hair products', 12],
-            [null, 'Lagos', 'NG', 'Abuja', 'NG', ServiceLevel::Express, 6, 'Legal documents', 0.5],
-            [null, 'Lagos', 'NG', 'Johannesburg', 'ZA', ServiceLevel::Standard, 1, 'Skincare stock', 9],
-            [null, 'Guangzhou', 'CN', 'Accra', 'GH', ServiceLevel::Economy, 3, 'Solar panels', 210],
-            [null, 'Lagos', 'NG', 'New York', 'US', ServiceLevel::Express, 7, 'Art prints', 2.4],
-            [null, 'Kano', 'NG', 'London', 'GB', ServiceLevel::Standard, 0, 'Leather bags', 5],
-            [null, 'Lagos', 'NG', 'Berlin', 'DE', ServiceLevel::Express, 2, 'Passport application', 0.4],
-            [null, 'Lagos', 'NG', 'Dubai', 'AE', ServiceLevel::Standard, 7, 'Shea butter', 15],
-            [null, 'London', 'GB', 'Lagos', 'NG', ServiceLevel::Express, 4, 'Car parts', 11],
+            ['NT1000000001', 'New York', 'US', 'London', 'GB', ServiceLevel::Express, 3, 'Fashion samples', 4.5],
+            ['NT1000000002', 'Chicago', 'US', 'Houston', 'US', ServiceLevel::Standard, 7, 'Legal documents', 0.8],
+            ['NT1000000003', 'Hong Kong', 'HK', 'Los Angeles', 'US', ServiceLevel::Economy, 6, 'Phone accessories (2 cartons)', 64],
+            ['NT1000000004', 'Boston', 'US', 'Toronto', 'CA', ServiceLevel::Express, 0, 'Gift box: clothes and snacks', 6.2],
+            ['NT1000000005', 'Houston', 'US', 'Dubai', 'AE', ServiceLevel::Standard, -1, 'Oil field spare parts', 18],
+            [null, 'London', 'GB', 'Miami', 'US', ServiceLevel::Express, 7, 'Medical textbooks', 7.5],
+            [null, 'New York', 'US', 'Manchester', 'GB', ServiceLevel::Standard, 4, 'Denim samples', 22],
+            [null, 'Miami', 'US', 'São Paulo', 'BR', ServiceLevel::Economy, 2, 'Household goods', 140],
+            [null, 'Dubai', 'AE', 'Atlanta', 'US', ServiceLevel::Express, 5, 'Laptop and accessories', 3.2],
+            [null, 'Dallas', 'US', 'Seattle', 'US', ServiceLevel::Standard, 7, 'Online store orders', 12],
+            [null, 'Los Angeles', 'US', 'San Francisco', 'US', ServiceLevel::Express, 6, 'Contracts', 0.5],
+            [null, 'Atlanta', 'US', 'Mexico City', 'MX', ServiceLevel::Standard, 1, 'Skincare stock', 9],
+            [null, 'Shenzhen', 'CN', 'Dallas', 'US', ServiceLevel::Economy, 3, 'Solar panels', 210],
+            [null, 'Seattle', 'US', 'Tokyo', 'JP', ServiceLevel::Express, 7, 'Art prints', 2.4],
+            [null, 'Austin', 'US', 'London', 'GB', ServiceLevel::Standard, 0, 'Leather bags', 5],
+            [null, 'New York', 'US', 'Berlin', 'DE', ServiceLevel::Express, 2, 'Passport application', 0.4],
+            [null, 'Los Angeles', 'US', 'Dubai', 'AE', ServiceLevel::Standard, 7, 'Cosmetics', 15],
+            [null, 'London', 'GB', 'Chicago', 'US', ServiceLevel::Express, 4, 'Car parts', 11],
         ];
 
-        $names = ['Chiamaka Obi', 'Ibrahim Musa', 'Ngozi Adeyemi', 'Kelechi Nwosu', 'Aisha Lawal', 'Emeka Okonkwo', 'Sarah Thompson', 'David Mensah', 'Yusuf Abdullahi', 'Blessing Udo', 'Michael Brown', 'Zainab Sani', 'Oluwaseun Ade', 'Laura Chen', 'Kwame Boateng', 'Hannah Schmidt'];
+        $names = ['Emily Carter', 'James Rodriguez', 'Olivia Bennett', 'Michael Brooks', 'Sophia Martinez', 'Ethan Walker', 'Sarah Thompson', 'David Kim', 'Ava Mitchell', 'Noah Patel', 'Grace Sullivan', 'Lucas Rivera', 'Chloe Anderson', 'Laura Chen', 'Ryan O\'Connor', 'Hannah Schmidt'];
         $calculator = app(RateCalculator::class);
 
         foreach ($shipments as $index => [$number, $fromCity, $fromCountry, $toCity, $toCountry, $level, $stage, $contents, $kg]) {
@@ -76,14 +83,14 @@ class DemoShipmentSeeder extends Seeder
                 'source' => $index % 3 === 0 ? 'website' : 'admin',
                 'sender_name' => $sender,
                 'sender_email' => str($sender)->slug('.')->value().'@example.com',
-                'sender_phone' => '+234 80'.str_pad((string) (31234567 + $index * 1111), 8, '0', STR_PAD_LEFT),
-                'sender_address' => (12 + $index).' '.['Allen Avenue', 'Adeola Odeku Street', 'Herbert Macaulay Way', 'Oxford Street', 'Baker Street'][$index % 5],
+                'sender_phone' => '+1 (212) 555-'.str_pad((string) (100 + $index * 7), 4, '0', STR_PAD_LEFT),
+                'sender_address' => (120 + $index * 3).' '.['W 34th St', 'Market St', 'Madison Ave', 'Ocean Dr', 'Peachtree St'][$index % 5],
                 'sender_city' => $fromCity,
                 'sender_country' => $fromCountry,
                 'receiver_name' => $receiver,
                 'receiver_email' => $index % 2 === 0 ? str($receiver)->slug('.')->value().'@example.org' : null,
-                'receiver_phone' => '+44 7700 9'.str_pad((string) (10000 + $index * 37), 5, '0', STR_PAD_LEFT),
-                'receiver_address' => (3 + $index).' '.['High Street', 'Main Road', 'Park Lane', 'Station Road'][$index % 4],
+                'receiver_phone' => '+1 (415) 555-'.str_pad((string) (200 + $index * 9), 4, '0', STR_PAD_LEFT),
+                'receiver_address' => (3 + $index).' '.['High Street', 'Main Street', 'Park Lane', 'Station Road'][$index % 4],
                 'receiver_city' => $toCity,
                 'receiver_country' => $toCountry,
                 'contents' => $contents,
@@ -109,8 +116,9 @@ class DemoShipmentSeeder extends Seeder
     {
         $origin = $shipment->origin();
         $destination = $shipment->destination();
-        $fromHub = (self::HUBS[$shipment->sender_country] ?? $shipment->sender_city.' Gateway').', '.Countries::name($shipment->sender_country);
-        $toHub = (self::HUBS[$shipment->receiver_country] ?? $shipment->receiver_city.' Gateway').', '.Countries::name($shipment->receiver_country);
+        $hub = fn (string $city, string $country): string => (self::HUBS[$city] ?? self::HUBS[$country] ?? $city.' Gateway').', '.Countries::name($country);
+        $fromHub = $hub($shipment->sender_city, $shipment->sender_country);
+        $toHub = $hub($shipment->receiver_city, $shipment->receiver_country);
         $mode = $shipment->service_level === ServiceLevel::Economy ? 'vessel' : 'flight';
 
         $steps = [
@@ -163,11 +171,11 @@ class DemoShipmentSeeder extends Seeder
     private function enquiries(): void
     {
         $enquiries = [
-            ['fulfilment', 'Temi Johnson', 'Glow Naturals', 'temi@glownaturals.example', 'We sell skincare on Instagram and our website, about 400 orders a month. Can you store our stock in Lagos and deliver orders?', ['Monthly volume' => '400 orders'], EnquiryStatus::New],
-            ['warehousing', 'Robert Ade', 'Ade Imports Ltd', 'robert@adeimports.example', 'Looking for 20 pallet spaces near Lagos airport for 6 months, starting next month.', ['Monthly volume' => '20 pallets'], EnquiryStatus::New],
-            ['quote', 'Mei Lin', 'Shenzhen Solar Co.', 'mei@szsolar.example', 'Please quote 2 x 40ft containers of solar panels from Shenzhen to Apapa port, door delivery to Ibadan.', ['Monthly volume' => '2 containers'], EnquiryStatus::Contacted],
-            ['business', 'Femi Alabi', 'Alabi & Sons', 'femi@alabi.example', 'We send about 50 parcels a week to the UK. Do you offer monthly invoicing and a discount?', ['Monthly volume' => '200 parcels'], EnquiryStatus::Won],
-            ['general', 'Joy Eze', null, 'joy.eze@example.com', 'Can I send homemade food items like dried fish and pepper soup spice to London?', [], EnquiryStatus::New],
+            ['fulfillment', 'Jessica Turner', 'Glow Naturals', 'jessica@glownaturals.example', 'We sell skincare on Shopify and Amazon, about 400 orders a month. Can you store our stock in Dallas and ship orders nationwide?', ['Monthly volume' => '400 orders'], EnquiryStatus::New],
+            ['warehousing', 'Robert Hayes', 'Hayes Imports LLC', 'robert@hayesimports.example', 'Looking for 20 pallet spaces near JFK for 6 months, starting next month.', ['Monthly volume' => '20 pallets'], EnquiryStatus::New],
+            ['quote', 'Mei Lin', 'Shenzhen Solar Co.', 'mei@szsolar.example', 'Please quote 2 x 40ft containers of solar panels from Shenzhen to the Port of Long Beach, door delivery to Phoenix, AZ.', ['Monthly volume' => '2 containers'], EnquiryStatus::Contacted],
+            ['business', 'Brian Foster', 'Foster & Sons', 'brian@fostersons.example', 'We send about 50 parcels a week to the UK and Canada. Do you offer monthly invoicing and a volume discount?', ['Monthly volume' => '200 parcels'], EnquiryStatus::Won],
+            ['general', 'Kayla Brooks', null, 'kayla.brooks@example.com', 'Can I send homemade cookies and hot sauce to my sister in London?', [], EnquiryStatus::New],
         ];
 
         foreach ($enquiries as $index => [$type, $name, $company, $email, $message, $details, $status]) {

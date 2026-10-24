@@ -33,17 +33,17 @@ class DatabaseSeeder extends Seeder
 
         $this->call(DemoShipmentSeeder::class);
 
-        // A customer account: sender of NG1000000001, so it sees that shipment and its own history.
+        // A customer account: sender of NT1000000001, so it sees that shipment and its own history.
         $customer = User::factory()->create([
-            'name' => 'Chiamaka Obi',
-            'email' => 'chiamaka.obi@example.com',
+            'name' => 'Emily Carter',
+            'email' => 'emily.carter@example.com',
         ]);
 
         $customer->addresses()->createMany([
-            ['label' => 'Office', 'name' => 'Chiamaka Obi', 'phone' => '+234 803 123 4567', 'email' => 'chiamaka.obi@example.com', 'address' => '12 Allen Avenue', 'city' => 'Lagos', 'country' => 'NG', 'is_default' => true],
-            ['label' => 'Brother in London', 'name' => 'Emeka Obi', 'phone' => '+44 7700 900123', 'address' => '3 High Street', 'city' => 'London', 'country' => 'GB'],
+            ['label' => 'Office', 'name' => 'Emily Carter', 'company' => 'Carter & Co. Apparel', 'phone' => '+1 (212) 555-0100', 'email' => 'emily.carter@example.com', 'address' => '120 W 34th St, New York, NY 10001', 'city' => 'New York', 'country' => 'US', 'is_default' => true],
+            ['label' => 'Brother in London', 'name' => 'Jack Carter', 'phone' => '+44 7700 900123', 'address' => '3 High Street', 'city' => 'London', 'country' => 'GB'],
         ]);
 
-        $customer->watchedShipments()->attach(Shipment::query()->where('tracking_number', 'NG1000000003')->value('id'));
+        $customer->watchedShipments()->attach(Shipment::query()->where('tracking_number', 'NT1000000003')->value('id'));
     }
 }

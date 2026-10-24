@@ -1,4 +1,4 @@
-<x-layouts::site current="services" title="Services" description="International air and sea freight, customs clearance, warehousing and e-commerce fulfilment.">
+<x-layouts::site current="services" title="Services" description="International air and sea freight, customs clearance, warehousing and e-commerce fulfillment.">
     <section class="page-hero">
         <div class="container">
             <p class="eyebrow" data-reveal>Services</p>

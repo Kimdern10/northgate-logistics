@@ -118,7 +118,7 @@ new #[Title('My account')] class extends Component {
             <flux:heading size="lg">Add a shipment</flux:heading>
             <flux:text>Expecting a parcel? Enter its tracking number to keep it in your account and get an email at every update.</flux:text>
             <form wire:submit="watch" class="flex flex-col gap-3">
-                <flux:input wire:model="trackingNumber" placeholder="e.g. NG4827301956" />
+                <flux:input wire:model="trackingNumber" placeholder="e.g. NT4827301956" />
                 <flux:button type="submit" variant="primary" icon="plus">Add to my shipments</flux:button>
             </form>
             <flux:separator />

@@ -1,7 +1,7 @@
 @php
     $enquiryType = match (true) {
         str_contains($service->slug, 'warehous') => 'warehousing',
-        str_contains($service->slug, 'fulfil') => 'fulfilment',
+        str_contains($service->slug, 'fulfil') => 'fulfillment',
         default => 'quote',
     };
     $serviceLd = [

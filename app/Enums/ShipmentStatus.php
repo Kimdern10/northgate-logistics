@@ -32,7 +32,7 @@ enum ShipmentStatus: string
     }
 
     /**
-     * Flux badge colour in the admin.
+     * Flux badge color in the admin.
      */
     public function color(): string
     {

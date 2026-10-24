@@ -25,7 +25,7 @@ new #[Title('Address book')] class extends Component {
 
     public string $city = '';
 
-    public string $country = 'NG';
+    public string $country = 'US';
 
     public bool $is_default = false;
 

@@ -15,7 +15,7 @@ new #[Title('Branches & hubs')] class extends Component {
 
     public string $city = '';
 
-    public string $country = 'NG';
+    public string $country = 'US';
 
     public string $address = '';
 
@@ -135,7 +135,7 @@ new #[Title('Branches & hubs')] class extends Component {
     <flux:modal name="branch" class="w-full max-w-2xl">
         <form wire:submit="save" class="flex flex-col gap-4">
             <flux:heading size="lg">{{ $editingId ? 'Edit branch' : 'Add branch' }}</flux:heading>
-            <flux:input wire:model="name" label="Name" placeholder="e.g. Lagos Airport Hub" />
+            <flux:input wire:model="name" label="Name" placeholder="e.g. JFK Airport Hub" />
             <flux:input wire:model="address" label="Street address" />
             <div class="grid gap-4 sm:grid-cols-2">
                 <flux:input wire:model="city" label="City" />
@@ -149,8 +149,8 @@ new #[Title('Branches & hubs')] class extends Component {
             </div>
             <flux:input wire:model="opening_hours" label="Opening hours" placeholder="Mon–Fri 8am–6pm, Sat 9am–2pm" />
             <div class="grid gap-4 sm:grid-cols-2">
-                <flux:input wire:model="latitude" label="Latitude" placeholder="6.5774" />
-                <flux:input wire:model="longitude" label="Longitude" placeholder="3.3212" />
+                <flux:input wire:model="latitude" label="Latitude" placeholder="40.6413" />
+                <flux:input wire:model="longitude" label="Longitude" placeholder="-73.7781" />
             </div>
             <flux:text class="text-xs">Tip: right-click the place in Google Maps or openstreetmap.org and copy the two numbers.</flux:text>
             <div class="flex flex-wrap gap-6">

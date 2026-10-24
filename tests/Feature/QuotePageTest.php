@@ -24,7 +24,7 @@ test('the calculator shows a price for each service on the route', function () {
 
 test('changing the route changes the prices', function () {
     Livewire::test('pages::quote')
-        ->set('toCountry', 'GH')
+        ->set('toCountry', 'CA')
         ->set('weight', '1')
         ->assertSee('Express Air')
         ->assertSee('$31.00');

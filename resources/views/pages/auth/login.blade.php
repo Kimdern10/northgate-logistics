@@ -1,6 +1,6 @@
-<x-layouts::auth :title="__('Log in')">
+<x-layouts::auth :title="__('Log in')" side="login">
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+        <x-auth-header :title="__('Log in')" :description="__('Track shipments, book pickups and manage your account.')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -51,9 +51,13 @@
             </div>
         </form>
 
-        <div class="space-x-1 text-sm text-center rtl:space-x-reverse text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Don\'t have an account?') }}</span>
-            <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
-        </div>
+        <flux:separator text="{{ __('New to '.\App\Models\Setting::get('business_name').'?') }}" />
+
+        <flux:button :href="route('register')" class="w-full" icon="user-plus">{{ __('Create a free account') }}</flux:button>
+
+        <p class="text-center text-sm text-zinc-500 dark:text-zinc-400">
+            {{ __('Just want to track a parcel?') }}
+            <flux:link :href="route('track')">{{ __('Track without logging in') }}</flux:link>
+        </p>
     </div>
 </x-layouts::auth>

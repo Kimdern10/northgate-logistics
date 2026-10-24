@@ -101,7 +101,7 @@ new #[Title('Site settings')] class extends Component {
                 <flux:input wire:model="stat_years" type="number" label="Years" />
                 <flux:input wire:model="stat_countries" type="number" label="Countries" />
                 <flux:input wire:model="stat_deliveries" type="number" label="Parcels delivered" />
-                <flux:input wire:model="stat_warehouse_sqm" type="number" label="Warehouse m²" />
+                <flux:input wire:model="stat_warehouse_sqm" type="number" label="Warehouse sq ft" />
             </div>
         </flux:card>
 

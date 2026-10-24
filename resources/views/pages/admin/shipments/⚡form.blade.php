@@ -26,7 +26,7 @@ new class extends Component {
 
     public string $sender_city = '';
 
-    public string $sender_country = 'NG';
+    public string $sender_country = 'US';
 
     public string $receiver_name = '';
 
