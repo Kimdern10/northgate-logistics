@@ -22,7 +22,6 @@ class DashboardTest extends TestCase
         $this->actingAs($user);
 
         $response = $this->get(route('dashboard'));
-        // The starter kit's dashboard now forwards to the admin.
-        $response->assertRedirect('/admin');
+        $response->assertOk();
     }
 }

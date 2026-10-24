@@ -71,6 +71,11 @@
                         <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
                         <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
                     </button>
+                    @auth
+                        <a class="account-link" href="{{ route('dashboard') }}" title="My account"><x-icon name="user" /><span class="hide-sm">My account</span></a>
+                    @else
+                        <a class="account-link" href="{{ route('login') }}"><x-icon name="user" /><span class="hide-sm">Log in</span></a>
+                    @endauth
                     <a class="btn btn--primary btn--sm hide-sm" href="{{ route('ship') }}" wire:navigate.hover>Book a pickup</a>
                     <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
                 </div>
@@ -82,6 +87,12 @@
             @foreach ($links as [$label, $href])
                 <a href="{{ $href }}" wire:navigate.hover>{{ $label }}</a>
             @endforeach
+            @auth
+                <a href="{{ route('account.shipments') }}">My shipments</a>
+            @else
+                <a href="{{ route('login') }}">Log in</a>
+                <a href="{{ route('register') }}">Create an account</a>
+            @endauth
             <a class="btn btn--primary" href="{{ route('ship') }}" wire:navigate.hover>Book a pickup</a>
         </nav>
 

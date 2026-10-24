@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Shipment;
 use App\Support\Waybill;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -30,6 +31,13 @@ class WaybillController extends Controller
 
     public function admin(Shipment $shipment): Response
     {
+        return Waybill::download($shipment);
+    }
+
+    public function account(Shipment $shipment): Response
+    {
+        Gate::authorize('downloadWaybill', $shipment);
+
         return Waybill::download($shipment);
     }
 }

@@ -7,6 +7,7 @@ use App\Mail\NewWebsiteRequest;
 use App\Mail\ShipmentBooked;
 use App\Models\Setting;
 use App\Models\Shipment;
+use App\Models\User;
 use App\Services\Quote;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -20,13 +21,14 @@ class BookShipment
     /**
      * @param  array<string, mixed>  $details  validated form fields named like the shipment columns
      */
-    public function handle(array $details, Quote $quote): Shipment
+    public function handle(array $details, Quote $quote, ?User $customer = null): Shipment
     {
-        $shipment = DB::transaction(function () use ($details, $quote): Shipment {
+        $shipment = DB::transaction(function () use ($details, $quote, $customer): Shipment {
             $pickupDate = CarbonImmutable::parse($details['pickup_date']);
 
             $shipment = Shipment::query()->create([
                 ...$details,
+                'user_id' => $customer?->id,
                 'status' => ShipmentStatus::Booked,
                 'service_level' => $quote->level,
                 'source' => 'website',

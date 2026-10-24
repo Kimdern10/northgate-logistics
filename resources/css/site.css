@@ -146,6 +146,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
     :root:not([data-theme="light"]) .logo-mark rect { fill: var(--orange); }
     :root:not([data-theme="light"]) .logo-mark circle { fill: var(--navy); }
 }
+.account-link { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text) !important; text-decoration: none; font-weight: 600; font-size: .9rem; transition: border-color .2s; }
+.account-link:hover { border-color: var(--orange); }
+@media (max-width: 560px) { .account-link { width: 40px; padding: 0; justify-content: center; } }
 .menu-toggle { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 .menu-toggle span { display: block; width: 18px; height: 2px; background: currentColor; border-radius: 2px; transition: transform .3s var(--ease); }
 .menu-open .menu-toggle span:first-child { transform: translateY(3.5px) rotate(45deg); }
@@ -159,8 +162,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .mobile-menu .btn { margin-top: 10px; }
 .menu-open .mobile-menu { transform: none; visibility: visible; }
 
-@media (max-width: 1020px) {
+.brand, .site-nav a, .account-link { white-space: nowrap; }
+
+@media (max-width: 1180px) {
     .site-nav { display: none; }
+    .site-nav + .header-tools { margin-left: auto; }
     .menu-toggle { display: inline-flex; }
 }
 @media (max-width: 560px) {
@@ -241,6 +247,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .tab-panel .grid-2 { margin-bottom: 0; }
 .check { display: flex; gap: 10px; align-items: flex-start; font-size: .88rem; margin: 16px 0 8px; cursor: pointer; }
 .check input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--orange); flex: none; }
+.check--inline { margin: 0 0 16px; }
+.address-picker { padding: 14px 16px 0; margin-bottom: 18px; border-radius: var(--radius-sm); background: var(--surface-2); }
+.account-hint { display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border-radius: var(--radius-sm); background: var(--orange-soft); font-size: .92rem; }
+.account-hint .icon { color: var(--orange); width: 22px; height: 22px; margin-top: 1px; }
 .alert { padding: 12px 14px; border-radius: var(--radius-sm); font-size: .9rem; font-weight: 600; margin: 12px 0; }
 .alert--error { background: rgb(220 38 38 / 10%); color: var(--red); }
 .stack { display: grid; gap: 14px; }
@@ -498,6 +508,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .track-help .icon { width: 30px; height: 30px; color: var(--orange); margin-bottom: 10px; }
 .track-help h2 { font-size: 1.15rem; }
 .track-help p { color: var(--muted); margin: 0; }
+
+.multi-track { display: grid; gap: 14px; max-width: 900px; }
+.multi-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--text) !important; text-decoration: none; transition: transform .3s var(--ease), border-color .3s; }
+.multi-row:hover { transform: translateX(6px); border-color: rgb(255 107 26 / 45%); }
+.multi-row > div:first-child { display: grid; }
+.multi-number { font-size: 1.2rem; letter-spacing: .04em; }
+.multi-meta { display: grid; justify-items: end; gap: 6px; }
+.multi-row--missing { opacity: .75; }
+.track-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); font-size: .9rem; color: var(--muted); }
+.track-actions form { margin: 0; }
 
 /* Booked */
 .booked-wrap { max-width: 760px; }

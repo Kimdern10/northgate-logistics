@@ -51,10 +51,6 @@ test('logging in takes staff to the admin dashboard', function () {
         ->assertRedirect(route('admin.dashboard', absolute: false));
 });
 
-test('public sign-up is switched off', function () {
-    $this->get('/register')->assertNotFound();
-});
-
 test('staff can create a shipment with a tracking number', function () {
     Rate::factory()->create(['service_level' => ServiceLevel::Standard, 'zone' => Zone::International, 'base_fee_cents' => 2000, 'per_kg_cents' => 700]);
     Setting::put(['fuel_surcharge_percent' => 0]);

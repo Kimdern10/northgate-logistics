@@ -68,11 +68,11 @@
 
                 <form id="tab-track" role="tabpanel" aria-labelledby="tab-track-btn" class="tab-panel" action="{{ route('track') }}" method="get">
                     <label class="field">
-                        <span>Tracking number</span>
+                        <span>Tracking number(s)</span>
                         <input name="number" placeholder="e.g. NG4827301956" autocomplete="off" required>
                     </label>
                     <button class="btn btn--primary btn--block" type="submit">Track shipment</button>
-                    <p class="hint">Find the number on your waybill or booking email.</p>
+                    <p class="hint">On your waybill or booking email. Track up to 10 at once, separated by commas.</p>
                 </form>
 
                 <form id="tab-quote" role="tabpanel" aria-labelledby="tab-quote-btn" class="tab-panel" action="{{ route('quote') }}" method="get" hidden>

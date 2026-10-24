@@ -30,6 +30,8 @@ class SitemapController extends Controller
         $lines = [
             'User-agent: *',
             'Disallow: /admin',
+            'Disallow: /account',
+            'Disallow: /dashboard',
             'Disallow: /settings',
             'Disallow: /waybill',
             'Disallow: /ship/booked',

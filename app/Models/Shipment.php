@@ -9,6 +9,8 @@ use Database\Factories\ShipmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -17,6 +19,7 @@ use Illuminate\Support\Str;
  * A parcel or consignment moving through the network.
  *
  * @property int $id
+ * @property int|null $user_id
  * @property string $tracking_number
  * @property ShipmentStatus $status
  * @property ServiceLevel $service_level
@@ -52,7 +55,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $updated_at
  */
 #[Fillable([
-    'status', 'service_level', 'source',
+    'user_id', 'status', 'service_level', 'source',
     'sender_name', 'sender_company', 'sender_email', 'sender_phone', 'sender_address', 'sender_city', 'sender_country',
     'receiver_name', 'receiver_company', 'receiver_email', 'receiver_phone', 'receiver_address', 'receiver_city', 'receiver_country',
     'contents', 'pieces', 'weight_kg', 'length_cm', 'width_cm', 'height_cm', 'declared_value_cents', 'price_cents',
@@ -72,6 +75,12 @@ class Shipment extends Model
     {
         static::creating(function (Shipment $shipment): void {
             $shipment->tracking_number ??= self::newTrackingNumber();
+        });
+
+        // Emails are matched to customer accounts, so keep them in one form.
+        static::saving(function (Shipment $shipment): void {
+            $shipment->sender_email = $shipment->sender_email ? strtolower(trim($shipment->sender_email)) : null;
+            $shipment->receiver_email = $shipment->receiver_email ? strtolower(trim($shipment->receiver_email)) : null;
         });
     }
 
@@ -95,6 +104,26 @@ class Shipment extends Model
     public function events(): HasMany
     {
         return $this->hasMany(TrackingEvent::class)->orderByDesc('happened_at')->orderByDesc('id');
+    }
+
+    /**
+     * The customer account that booked it.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Customers who added it to their account.
+     *
+     * @return BelongsToMany<User, $this>
+     */
+    public function watchers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'shipment_watches')->withTimestamps();
     }
 
     /**
@@ -159,13 +188,14 @@ class Shipment extends Model
     }
 
     /**
-     * The people who get status emails.
+     * The people who get status emails: sender, receiver, the booking account and anyone watching it.
      *
      * @return list<string>
      */
     public function notifiableEmails(): array
     {
-        return collect([$this->sender_email, $this->receiver_email])
+        return collect([$this->sender_email, $this->receiver_email, $this->user?->email])
+            ->merge($this->watchers()->pluck('email'))
             ->filter()
             ->map(fn (string $email): string => strtolower($email))
             ->unique()

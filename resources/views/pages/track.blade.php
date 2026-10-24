@@ -12,9 +12,10 @@
             <h1 data-reveal>Where's my shipment?</h1>
             <form class="track-inline" action="{{ route('track') }}" method="get" data-reveal>
                 <label class="sr-only" for="track-number">Tracking number</label>
-                <input id="track-number" name="number" value="{{ $number }}" placeholder="Enter tracking number, e.g. NG4827301956" autocomplete="off" required>
+                <input id="track-number" name="number" value="{{ $number }}" placeholder="Tracking number, e.g. NG4827301956" autocomplete="off" required>
                 <button class="btn btn--primary" type="submit"><x-icon name="search" /> Track</button>
             </form>
+            <p class="hint" data-reveal>Track up to {{ \App\Http\Controllers\TrackingController::MAX_AT_ONCE }} at once: separate the numbers with commas or spaces.</p>
         </div>
     </section>
 
@@ -70,6 +71,19 @@
                                 <div><dt>Expected by</dt><dd>{{ $shipment->estimated_delivery_date->format('D j M Y') }}</dd></div>
                             @endif
                         </dl>
+
+                        <div class="track-actions">
+                            @auth
+                                <form method="post" action="{{ route('track.watch', $shipment->tracking_number) }}">
+                                    @csrf
+                                    <button class="btn btn--ghost btn--sm" type="submit"><x-icon name="eye" /> Add to my shipments</button>
+                                </form>
+                                <span>Keep it in your account and get an email at every update.</span>
+                            @else
+                                <a class="btn btn--ghost btn--sm" href="{{ route('login') }}"><x-icon name="user" /> Log in to follow this shipment</a>
+                                <span>Get an email at every update. <a href="{{ route('register') }}">Create a free account</a>.</span>
+                            @endauth
+                        </div>
                     </div>
 
                     <div class="card timeline-card" data-reveal>

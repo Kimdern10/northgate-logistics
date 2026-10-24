@@ -6,9 +6,26 @@
     <body class="min-h-screen bg-white dark:bg-zinc-800">
         <flux:sidebar sticky collapsible="mobile" class="border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
             <flux:sidebar.header>
-                <x-app-logo :sidebar="true" href="{{ route('admin.dashboard') }}" wire:navigate />
+                <x-app-logo :sidebar="true" href="{{ route('home') }}" />
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
+
+            <flux:sidebar.nav>
+                <flux:sidebar.group :heading="__('My account')" class="grid">
+                    <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                        {{ __('Overview') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="cube" :href="route('account.shipments')" :current="request()->routeIs('account.shipments*')" wire:navigate>
+                        {{ __('My shipments') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="book-open" :href="route('account.addresses')" :current="request()->routeIs('account.addresses')" wire:navigate>
+                        {{ __('Address book') }}
+                    </flux:sidebar.item>
+                    <flux:sidebar.item icon="truck" :href="route('ship')">
+                        {{ __('Ship a parcel') }}
+                    </flux:sidebar.item>
+                </flux:sidebar.group>
+            </flux:sidebar.nav>
 
             @if (auth()->user()->is_admin)
                 <flux:sidebar.nav>

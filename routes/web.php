@@ -29,9 +29,15 @@ Route::get('waybill/{shipment:tracking_number}', [WaybillController::class, 'dow
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
+Route::post('track/{number}/watch', [TrackingController::class, 'watch'])->middleware(['auth', 'verified', 'throttle:tracking'])->name('track.watch');
+
+// Customer account, like My UPS / My FedEx.
 Route::middleware(['auth', 'verified'])->group(function () {
-    // The starter kit's settings pages link back here.
-    Route::redirect('dashboard', 'admin')->name('dashboard');
+    Route::livewire('dashboard', 'pages::account.dashboard')->name('dashboard');
+    Route::livewire('account/shipments', 'pages::account.shipments')->name('account.shipments');
+    Route::livewire('account/shipments/{shipment:tracking_number}', 'pages::account.shipment')->name('account.shipments.show');
+    Route::get('account/shipments/{shipment:tracking_number}/waybill', [WaybillController::class, 'account'])->name('account.shipments.waybill');
+    Route::livewire('account/addresses', 'pages::account.addresses')->name('account.addresses');
 });
 
 require __DIR__.'/admin.php';

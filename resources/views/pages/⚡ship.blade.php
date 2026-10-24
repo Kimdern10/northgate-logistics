@@ -3,6 +3,7 @@
 use App\Actions\BookShipment;
 use App\Enums\ServiceLevel;
 use App\Services\Quote;
+use App\Models\Shipment;
 use App\Services\RateCalculator;
 use App\Support\Countries;
 use App\Support\Money;
@@ -66,10 +67,37 @@ new class extends Component {
     /** Honeypot: hidden from people, filled in by spam bots. */
     public string $website = '';
 
+    /** Logged-in customers: pick from the address book. */
+    public string $senderAddressId = '';
+
+    public string $receiverAddressId = '';
+
+    public bool $saveSender = false;
+
+    public bool $saveReceiver = false;
+
     public function mount(): void
     {
         $query = request()->query();
         $codes = Countries::codes();
+
+        if ($user = auth()->user()) {
+            $this->sender_name = $user->name;
+            $this->sender_email = $user->email;
+
+            if ($default = $user->addresses()->where('is_default', true)->first()) {
+                $this->senderAddressId = (string) $default->id;
+                $this->fillFrom($default->toShipmentFields('sender_'));
+            }
+
+            $previous = Shipment::findByTrackingNumber((string) ($query['again'] ?? ''));
+
+            if ($previous && $user->sentShipment($previous)) {
+                $this->shipAgain($previous);
+
+                return;
+            }
+        }
 
         $this->sender_country = in_array($query['from'] ?? null, $codes, true) ? $query['from'] : $this->sender_country;
         $this->receiver_country = in_array($query['to'] ?? null, $codes, true) ? $query['to'] : $this->receiver_country;
@@ -82,6 +110,59 @@ new class extends Component {
         }
 
         $this->pickup_date = now()->addWeekday()->toDateString();
+    }
+
+    /**
+     * @param  array<string, string>  $fields
+     */
+    private function fillFrom(array $fields): void
+    {
+        foreach ($fields as $field => $value) {
+            if (property_exists($this, $field)) {
+                $this->{$field} = $value;
+            }
+        }
+    }
+
+    /**
+     * Copy a shipment this customer sent before, like "Ship again" on UPS and FedEx.
+     */
+    private function shipAgain(Shipment $previous): void
+    {
+        foreach (['sender', 'receiver'] as $prefix) {
+            foreach (['name', 'company', 'email', 'phone', 'address', 'city', 'country'] as $field) {
+                $this->{$prefix.'_'.$field} = (string) $previous->{$prefix.'_'.$field};
+            }
+        }
+
+        $this->contents = $previous->contents;
+        $this->pieces = (string) $previous->pieces;
+        $this->weight_kg = (string) $previous->weight_kg;
+        $this->length_cm = (string) $previous->length_cm;
+        $this->width_cm = (string) $previous->width_cm;
+        $this->height_cm = (string) $previous->height_cm;
+        $this->service_level = $previous->service_level->value;
+        $this->pickup_date = now()->addWeekday()->toDateString();
+    }
+
+    public function updatedSenderAddressId(string $id): void
+    {
+        if ($address = auth()->user()?->addresses()->find($id)) {
+            $this->fillFrom($address->toShipmentFields('sender_'));
+        }
+    }
+
+    public function updatedReceiverAddressId(string $id): void
+    {
+        if ($address = auth()->user()?->addresses()->find($id)) {
+            $this->fillFrom($address->toShipmentFields('receiver_'));
+        }
+    }
+
+    #[Computed]
+    public function savedAddresses()
+    {
+        return auth()->user()?->addresses()->get() ?? collect();
     }
 
     /**
@@ -121,6 +202,8 @@ new class extends Component {
             'pickup_date' => ['required', 'date', 'after_or_equal:today', 'before:'.now()->addDays(31)->toDateString()],
             'notes' => ['nullable', 'string', 'max:1000'],
             'agree' => ['accepted'],
+            'saveSender' => ['boolean'],
+            'saveReceiver' => ['boolean'],
         ];
     }
 
@@ -187,12 +270,27 @@ new class extends Component {
         RateLimiter::hit($key, 600);
 
         $details = collect($validated)
-            ->except(['declared_value', 'service_level', 'agree'])
+            ->except(['declared_value', 'service_level', 'agree', 'saveSender', 'saveReceiver'])
             ->map(fn ($value) => $value === '' ? null : $value)
             ->all();
         $details['declared_value_cents'] = Money::toCents($validated['declared_value'] ?? 0);
 
-        $shipment = $bookShipment->handle($details, $quote);
+        $shipment = $bookShipment->handle($details, $quote, auth()->user());
+
+        if ($user = auth()->user()) {
+            foreach (['sender' => $this->saveSender, 'receiver' => $this->saveReceiver] as $prefix => $save) {
+                if ($save) {
+                    $user->addresses()->create(collect($details)
+                        ->filter(fn ($value, string $key): bool => str_starts_with($key, $prefix.'_'))
+                        ->mapWithKeys(fn ($value, string $key): array => [substr($key, strlen($prefix) + 1) => $value])
+                        ->all());
+                }
+            }
+
+            session()->flash('booked', true);
+
+            return $this->redirectRoute('account.shipments.show', $shipment);
+        }
 
         return $this->redirect(URL::temporarySignedRoute('ship.booked', now()->addDay(), ['shipment' => $shipment->tracking_number]));
     }
@@ -217,8 +315,18 @@ new class extends Component {
     <section class="section section--tight">
         <form class="container ship-layout" wire:submit="book" novalidate>
             <div class="ship-steps">
+                @guest
+                    <div class="account-hint" data-reveal>
+                        <x-icon name="shield" />
+                        <span>Ship often? <a href="{{ route('register') }}">Create a free account</a> or <a href="{{ route('login') }}">log in</a> to use your address book, ship again in one click and see all your shipments in one place.</span>
+                    </div>
+                @endguest
+
                 <fieldset class="card step-card" data-reveal>
                     <legend><span class="step-num">1</span> Pickup from</legend>
+                    @auth
+                        <x-address-picker model="senderAddressId" save-model="saveSender" :addresses="$this->savedAddresses" />
+                    @endauth
                     <div class="grid-2">
                         <x-field label="Your name" model="sender_name" autocomplete="name" />
                         <x-field label="Company (optional)" model="sender_company" autocomplete="organization" />
@@ -234,6 +342,9 @@ new class extends Component {
 
                 <fieldset class="card step-card" data-reveal>
                     <legend><span class="step-num">2</span> Deliver to</legend>
+                    @auth
+                        <x-address-picker model="receiverAddressId" save-model="saveReceiver" :addresses="$this->savedAddresses" />
+                    @endauth
                     <div class="grid-2">
                         <x-field label="Receiver's name" model="receiver_name" />
                         <x-field label="Company (optional)" model="receiver_company" />
