@@ -50,12 +50,13 @@ class RateCalculator
     public function quotes(string $fromCountry, string $toCountry, float $weightKg, ?int $lengthCm = null, ?int $widthCm = null, ?int $heightCm = null): Collection
     {
         $zone = self::zoneFor($fromCountry, $toCountry);
+        $fastestFirst = array_flip(array_map(fn (ServiceLevel $level): string => $level->value, ServiceLevel::cases()));
 
         return Rate::query()
             ->where('zone', $zone)
             ->where('is_active', true)
             ->get()
-            ->sortBy(fn (Rate $rate): int => array_search($rate->service_level, ServiceLevel::cases(), true))
+            ->sortBy(fn (Rate $rate): int => $fastestFirst[$rate->service_level->value])
             ->map(fn (Rate $rate): Quote => $this->price($rate, $weightKg, $lengthCm, $widthCm, $heightCm))
             ->values();
     }

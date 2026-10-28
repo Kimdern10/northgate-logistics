@@ -66,7 +66,7 @@ class TrackingController extends Controller
     {
         $shipment = Shipment::findByTrackingNumber($number);
 
-        abort_unless($shipment, 404);
+        abort_if($shipment === null, 404);
 
         $request->user()->watchedShipments()->syncWithoutDetaching([$shipment->id]);
 

@@ -194,12 +194,11 @@ class Shipment extends Model
      */
     public function notifiableEmails(): array
     {
-        return collect([$this->sender_email, $this->receiver_email, $this->user?->email])
+        return array_values(collect([$this->sender_email, $this->receiver_email, $this->user?->email])
             ->merge($this->watchers()->pluck('email'))
             ->filter()
             ->map(fn (string $email): string => strtolower($email))
             ->unique()
-            ->values()
-            ->all();
+            ->all());
     }
 }
