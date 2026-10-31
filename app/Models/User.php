@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\EmailVerificationCode;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -123,6 +124,14 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
     {
         return $shipment->user_id === $this->id
             || ($this->hasVerifiedEmail() && $shipment->sender_email !== null && strtolower($shipment->sender_email) === strtolower($this->email));
+    }
+
+    /**
+     * Email a six-digit code instead of Laravel's default verification link.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        EmailVerificationCode::send($this);
     }
 
     /**
