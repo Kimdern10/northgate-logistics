@@ -118,5 +118,26 @@
         @endpersist
 
         @fluxScripts
+
+        <script>
+            // Normal (non-Livewire) forms such as Sign up: show that the click worked and stop double-submits.
+            document.addEventListener('submit', (event) => {
+                const form = event.target;
+
+                if (form.hasAttribute('wire:submit') || event.defaultPrevented) {
+                    return;
+                }
+
+                const button = form.querySelector('button[type="submit"]');
+
+                if (button && ! button.disabled) {
+                    setTimeout(() => {
+                        button.disabled = true;
+                        button.style.opacity = '.7';
+                        button.textContent = @js(__('Please wait…'));
+                    });
+                }
+            });
+        </script>
     </body>
 </html>

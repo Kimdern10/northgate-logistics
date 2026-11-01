@@ -4,6 +4,7 @@ use App\Actions\RecordTrackingUpdate;
 use App\Enums\ShipmentStatus;
 use App\Mail\ShipmentStatusUpdated;
 use App\Models\Shipment;
+use Illuminate\Support\Defer\DeferredCallbackCollection;
 use Illuminate\Support\Facades\Mail;
 
 beforeEach(fn () => Mail::fake());
@@ -65,9 +66,20 @@ test('a mail server failure does not lose the update', function () {
     Mail::shouldReceive('to')->andThrow(new RuntimeException('SMTP down'));
     $shipment = Shipment::factory()->create();
 
-    $action = app(RecordTrackingUpdate::class);
-    $action->handle($shipment, ShipmentStatus::PickedUp, 'Lagos');
+    app(RecordTrackingUpdate::class)->handle($shipment, ShipmentStatus::PickedUp, 'Lagos');
 
     expect($shipment->fresh()->status)->toBe(ShipmentStatus::PickedUp)
-        ->and($action->emailed)->toBe(0);
+        ->and($shipment->events()->count())->toBe(1);
+});
+
+test('status emails are sent after the page has responded', function () {
+    Mail::fake();
+    $this->withDefer();
+    $shipment = Shipment::factory()->create(['sender_email' => 'sender@example.com', 'receiver_email' => null]);
+
+    app(RecordTrackingUpdate::class)->handle($shipment, ShipmentStatus::PickedUp, 'Lagos');
+    Mail::assertNothingSent();
+
+    app(DeferredCallbackCollection::class)->invoke();
+    Mail::assertSent(ShipmentStatusUpdated::class, fn ($mail) => $mail->hasTo('sender@example.com'));
 });

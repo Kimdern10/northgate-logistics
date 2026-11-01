@@ -30,7 +30,7 @@ class EmailVerificationCode
 
         Cache::put(self::key($user), ['hash' => Hash::make($code), 'attempts' => 0], now()->addMinutes(self::MINUTES_VALID));
 
-        $user->notify(new VerifyEmailCode($code, self::MINUTES_VALID));
+        SendAfterResponse::notify($user, new VerifyEmailCode($code, self::MINUTES_VALID));
     }
 
     /**

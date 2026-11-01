@@ -521,6 +521,16 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .track-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); font-size: .9rem; color: var(--muted); }
 .track-actions form { margin: 0; }
 
+/* "Please wait" overlay for slow actions */
+.busy-overlay { position: fixed; inset: 0; z-index: 90; display: none; align-items: center; justify-content: center; padding: 16px; background: rgb(7 16 31 / 55%); backdrop-filter: blur(3px); animation: fadeUp .2s var(--ease); }
+.busy-card { display: grid; justify-items: center; gap: 10px; max-width: 360px; padding: 28px 32px; border-radius: var(--radius); background: var(--surface); color: var(--text); text-align: center; box-shadow: var(--shadow-lg); }
+.busy-card strong { font-size: 1.15rem; }
+.busy-card span:last-child { color: var(--muted); font-size: .92rem; }
+.busy-spinner { position: relative; display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; color: var(--orange); }
+.busy-spinner::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 4px solid var(--orange-soft); border-top-color: var(--orange); animation: spin .9s linear infinite; }
+.busy-spinner .icon { width: 26px; height: 26px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* Booked */
 .booked-wrap { max-width: 760px; }
 .booked-card { text-align: center; display: grid; justify-items: center; gap: 8px; }

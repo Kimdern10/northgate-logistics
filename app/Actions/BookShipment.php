@@ -9,9 +9,9 @@ use App\Models\Setting;
 use App\Models\Shipment;
 use App\Models\User;
 use App\Services\Quote;
+use App\Support\SendAfterResponse;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Creates a shipment from the website's "Book a pickup" form.
@@ -58,13 +58,9 @@ class BookShipment
             filled(Setting::get('notify_email')) ? [Setting::get('notify_email'), new NewWebsiteRequest($shipment)] : null,
         ]);
 
+        // Sent after the confirmation page loads, and a mail problem never loses the booking.
         foreach ($messages as [$email, $mailable]) {
-            try {
-                Mail::to($email)->send($mailable);
-            } catch (\Throwable $exception) {
-                // The booking is saved and shown on screen even when mail is down.
-                report($exception);
-            }
+            SendAfterResponse::mail($email, $mailable);
         }
     }
 }

@@ -6,9 +6,9 @@ use App\Enums\ShipmentStatus;
 use App\Mail\ShipmentStatusUpdated;
 use App\Models\Shipment;
 use App\Models\TrackingEvent;
+use App\Support\SendAfterResponse;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 /**
  * Adds a line to a shipment's timeline, moves the shipment to that status when it is the
@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Mail;
 class RecordTrackingUpdate
 {
     /**
-     * How many people were emailed on the last call.
+     * How many people are being emailed about the last update.
      */
     public int $emailed = 0;
 
@@ -65,14 +65,10 @@ class RecordTrackingUpdate
 
     private function notify(Shipment $shipment, TrackingEvent $event): void
     {
+        // Sent after the page responds; a mail server problem never loses the tracking update itself.
         foreach ($shipment->notifiableEmails() as $email) {
-            try {
-                Mail::to($email)->send(new ShipmentStatusUpdated($shipment, $event));
-                $this->emailed++;
-            } catch (\Throwable $exception) {
-                // A mail server problem must not lose the tracking update itself.
-                report($exception);
-            }
+            SendAfterResponse::mail($email, new ShipmentStatusUpdated($shipment, $event));
+            $this->emailed++;
         }
     }
 }

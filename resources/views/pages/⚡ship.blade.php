@@ -425,7 +425,9 @@ new class extends Component {
                         <p class="alert alert--error">Please check the highlighted fields.</p>
                     @endif
 
-                    <button type="submit" class="btn btn--primary btn--block" wire:loading.attr="disabled">
+                    <x-busy-overlay target="book" title="Booking your pickup…" text="Saving your details and preparing your waybill. This takes a few seconds." />
+
+                    <button type="submit" class="btn btn--primary btn--block" wire:loading.attr="disabled" wire:target="book">
                         <span wire:loading.remove wire:target="book">Book pickup</span>
                         <span wire:loading wire:target="book">Booking…</span>
                     </button>

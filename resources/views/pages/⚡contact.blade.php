@@ -3,7 +3,7 @@
 use App\Mail\NewWebsiteRequest;
 use App\Models\Enquiry;
 use App\Models\Setting;
-use Illuminate\Support\Facades\Mail;
+use App\Support\SendAfterResponse;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -68,11 +68,7 @@ new class extends Component {
         ]);
 
         if (filled(Setting::get('notify_email'))) {
-            try {
-                Mail::to(Setting::get('notify_email'))->send(new NewWebsiteRequest($enquiry));
-            } catch (\Throwable $exception) {
-                report($exception);
-            }
+            SendAfterResponse::mail(Setting::get('notify_email'), new NewWebsiteRequest($enquiry));
         }
 
         $this->reset(['name', 'company', 'email', 'phone', 'monthly_volume', 'message']);
@@ -137,7 +133,9 @@ new class extends Component {
                         </div>
                         @error('form') <p class="alert alert--error">{{ $message }}</p> @enderror
                         <div>
-                            <button type="submit" class="btn btn--primary" wire:loading.attr="disabled">
+                            <x-busy-overlay target="send" title="Sending your message…" text="This takes a few seconds." />
+
+                            <button type="submit" class="btn btn--primary" wire:loading.attr="disabled" wire:target="send">
                                 <span wire:loading.remove wire:target="send">Send message</span>
                                 <span wire:loading wire:target="send">Sending…</span>
                             </button>
