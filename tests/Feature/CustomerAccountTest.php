@@ -45,6 +45,19 @@ test('my shipments lists what I booked, sent and receive, and nothing else', fun
         ->assertDontSee($someoneElse->tracking_number);
 });
 
+test('each shipment says whether I am sending, receiving or only following it', function () {
+    $user = customer();
+    Shipment::factory()->create(['user_id' => $user->id, 'contents' => 'Sent parcel']);
+    Shipment::factory()->create(['receiver_email' => 'ada@example.com', 'contents' => 'Parcel for me']);
+    $followed = Shipment::factory()->create(['contents' => 'Followed parcel']);
+    $user->watchedShipments()->attach($followed);
+
+    Livewire::actingAs($user)->test('pages::account.shipments')
+        ->assertSeeInOrder(['Sending', 'Sent parcel'])
+        ->assertSeeInOrder(['Receiving', 'Parcel for me'])
+        ->assertSeeInOrder(['Following', 'Followed parcel']);
+});
+
 test('shipments matched by email stay hidden until the email is verified', function () {
     $user = customer(['email_verified_at' => null]);
     Shipment::factory()->create(['receiver_email' => 'ada@example.com']);

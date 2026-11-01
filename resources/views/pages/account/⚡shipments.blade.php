@@ -46,9 +46,18 @@ new #[Title('My shipments')] class extends Component {
             ->paginate(15);
     }
 
+    /**
+     * How this customer is linked to the shipment: they sent it, it is for them, or they only follow it.
+     */
     public function direction(Shipment $shipment): string
     {
-        return auth()->user()->sentShipment($shipment) ? 'Sending' : 'Receiving';
+        $user = auth()->user();
+
+        return match (true) {
+            $user->sentShipment($shipment) => 'Sending',
+            $user->hasVerifiedEmail() && $shipment->receiver_email === strtolower($user->email) => 'Receiving',
+            default => 'Following',
+        };
     }
 }; ?>
 

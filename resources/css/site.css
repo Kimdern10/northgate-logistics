@@ -399,7 +399,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .step-card legend { float: left; width: 100%; display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 800; margin-bottom: 18px; padding: 0; }
 .step-card legend + * { clear: both; }
 .step-num { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--orange); color: #fff; font-size: .95rem; }
-.ship-summary { position: sticky; top: 90px; }
+/* Stays in view while the form scrolls, but never taller than the screen, so "Book pickup" is always reachable. */
+.ship-summary { position: sticky; top: 90px; max-height: calc(100vh - 106px); overflow-y: auto; overscroll-behavior: contain; border-radius: var(--radius); scrollbar-width: thin; }
+.ship-summary .summary-card { box-shadow: none; }
+.summary-card .btn--block { position: sticky; bottom: 0; box-shadow: 0 -12px 18px var(--surface), 0 8px 22px rgb(255 107 26 / 35%); }
 .summary-card h2 { font-size: 1.3rem; }
 .route-mini { display: flex; align-items: center; gap: 8px; color: var(--muted); font-weight: 600; }
 .service-options { display: grid; gap: 10px; margin: 14px 0; }
@@ -565,6 +568,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
     .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 36px; }
     .steps::before { display: none; }
     .quote-form, .ship-summary, .side-card { position: static; }
+    .ship-summary { max-height: none; overflow: visible; }
     .footer-grid { grid-template-columns: 1fr 1fr; }
     .hero h1 { max-width: 16ch; }
 }
