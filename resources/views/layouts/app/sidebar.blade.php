@@ -49,6 +49,9 @@
                         <flux:sidebar.item icon="inbox" :href="route('admin.enquiries')" :current="request()->routeIs('admin.enquiries')" wire:navigate :badge="\App\Models\Enquiry::query()->where('status', 'new')->count() ?: null">
                             {{ __('Quote requests') }}
                         </flux:sidebar.item>
+                        <flux:sidebar.item icon="presentation-chart-line" :href="route('admin.reports')" :current="request()->routeIs('admin.reports')" wire:navigate>
+                            {{ __('Reports') }}
+                        </flux:sidebar.item>
                         <flux:sidebar.item icon="identification" :href="route('admin.drivers')" :current="request()->routeIs('admin.drivers')" wire:navigate>
                             {{ __('Drivers') }}
                         </flux:sidebar.item>
