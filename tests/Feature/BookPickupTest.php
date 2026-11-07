@@ -43,6 +43,8 @@ function pickupForm(array $overrides = []): array
         'service_level' => 'express',
         'pickup_date' => now()->addDay()->toDateString(),
         'agree' => true,
+        'export_reason' => 'sample',
+        'items' => [['description' => 'Fashion samples', 'quantity' => '2', 'unit_value' => '40', 'origin_country' => 'US', 'hs_code' => '']],
         ...$overrides,
     ];
 }
@@ -75,7 +77,7 @@ test('booking a pickup creates a priced shipment and its first update', function
 test('the sender gets the waybill and the office is told', function () {
     fillPickupForm()->call('book');
 
-    Mail::assertSent(ShipmentBooked::class, fn ($mail) => $mail->hasTo('chiamaka@example.com') && count($mail->attachments()) === 1);
+    Mail::assertSent(ShipmentBooked::class, fn ($mail) => $mail->hasTo('chiamaka@example.com') && count($mail->attachments()) === 2);
     Mail::assertSent(NewWebsiteRequest::class, fn ($mail) => $mail->hasTo('ops@northgate.example'));
 });
 

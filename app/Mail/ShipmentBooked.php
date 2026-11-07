@@ -4,6 +4,7 @@ namespace App\Mail;
 
 use App\Models\Setting;
 use App\Models\Shipment;
+use App\Support\CommercialInvoice;
 use App\Support\Waybill;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -45,9 +46,16 @@ class ShipmentBooked extends Mailable
      */
     public function attachments(): array
     {
-        return [
+        $attachments = [
             Attachment::fromData(fn (): string => Waybill::pdf($this->shipment), Waybill::filename($this->shipment))
                 ->withMime('application/pdf'),
         ];
+
+        if (CommercialInvoice::isNeeded($this->shipment)) {
+            $attachments[] = Attachment::fromData(fn (): string => CommercialInvoice::pdf($this->shipment), CommercialInvoice::filename($this->shipment))
+                ->withMime('application/pdf');
+        }
+
+        return $attachments;
     }
 }

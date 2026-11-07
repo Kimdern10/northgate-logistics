@@ -23,9 +23,12 @@
 
                 <div class="btn-row btn-row--center">
                     <a class="btn btn--primary" href="{{ $waybillUrl }}"><x-icon name="download" /> Download waybill (PDF)</a>
+                    @if ($invoiceUrl)
+                        <a class="btn btn--ghost" href="{{ $invoiceUrl }}"><x-icon name="download" /> Commercial invoice (PDF)</a>
+                    @endif
                     <a class="btn btn--ghost" href="{{ route('track.show', $shipment->tracking_number) }}" wire:navigate.hover>Track shipment</a>
                 </div>
-                <p class="small-print">Print the waybill and stick it on the parcel, or show it on your phone when the courier arrives.</p>
+                <p class="small-print">Print the waybill and stick it on the parcel, or show it on your phone when the courier arrives.@if ($invoiceUrl) Sign the commercial invoice and put it in a clear pouch on the box: customs need it.@endif</p>
             </div>
         </div>
     </section>

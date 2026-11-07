@@ -65,6 +65,9 @@ new class extends Component {
         <div class="flex flex-wrap gap-2">
             @can('downloadWaybill', $shipment)
                 <flux:button icon="printer" :href="route('account.shipments.waybill', $shipment)">Waybill PDF</flux:button>
+                @if (\App\Support\CommercialInvoice::isNeeded($shipment))
+                    <flux:button icon="document-text" :href="route('account.shipments.invoice', $shipment)">Commercial invoice</flux:button>
+                @endif
                 <flux:button icon="arrow-path" :href="route('ship', ['again' => $shipment->tracking_number])">Ship again</flux:button>
             @endcan
             <flux:button icon="share" :href="route('track.show', $shipment->tracking_number)" target="_blank">Public tracking page</flux:button>

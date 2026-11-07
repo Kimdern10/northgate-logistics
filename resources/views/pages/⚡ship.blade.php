@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\BookShipment;
+use App\Livewire\ShipmentForm;
 use App\Enums\ServiceLevel;
 use App\Services\Quote;
 use App\Models\Shipment;
@@ -13,7 +14,7 @@ use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
-new class extends Component {
+new class extends ShipmentForm {
     public string $sender_name = '';
 
     public string $sender_company = '';
@@ -26,8 +27,6 @@ new class extends Component {
 
     public string $sender_city = '';
 
-    public string $sender_country = 'US';
-
     public string $receiver_name = '';
 
     public string $receiver_company = '';
@@ -39,8 +38,6 @@ new class extends Component {
     public string $receiver_address = '';
 
     public string $receiver_city = '';
-
-    public string $receiver_country = 'GB';
 
     public string $contents = '';
 
@@ -94,6 +91,7 @@ new class extends Component {
 
             if ($previous && $user->sentShipment($previous)) {
                 $this->shipAgain($previous);
+                $this->ensureCustomsLine();
 
                 return;
             }
@@ -110,6 +108,17 @@ new class extends Component {
         }
 
         $this->pickup_date = now()->addWeekday()->toDateString();
+        $this->ensureCustomsLine();
+    }
+
+    /**
+     * Show the customs section as soon as the route crosses a border.
+     */
+    public function updated(string $property): void
+    {
+        if (in_array($property, ['sender_country', 'receiver_country', 'senderAddressId', 'receiverAddressId'], true)) {
+            $this->ensureCustomsLine();
+        }
     }
 
     /**
@@ -143,6 +152,14 @@ new class extends Component {
         $this->height_in = (string) $previous->height_in;
         $this->service_level = $previous->service_level->value;
         $this->pickup_date = now()->addWeekday()->toDateString();
+        $this->export_reason = $previous->export_reason ?? $this->export_reason;
+        $this->items = $previous->items->map(fn ($item): array => [
+            'description' => $item->description,
+            'quantity' => (string) $item->quantity,
+            'unit_value' => Money::toDecimal($item->unit_value_cents),
+            'origin_country' => $item->origin_country,
+            'hs_code' => (string) $item->hs_code,
+        ])->all();
     }
 
     public function updatedSenderAddressId(string $id): void
@@ -204,7 +221,7 @@ new class extends Component {
             'agree' => ['accepted'],
             'saveSender' => ['boolean'],
             'saveReceiver' => ['boolean'],
-        ];
+        ] + $this->customsRules();
     }
 
     /**
@@ -219,7 +236,7 @@ new class extends Component {
             'receiver_address' => 'delivery address', 'receiver_city' => 'delivery city', 'receiver_country' => 'delivery country',
             'weight_lb' => 'weight', 'length_in' => 'length', 'width_in' => 'width', 'height_in' => 'height',
             'agree' => 'terms',
-        ];
+        ] + $this->customsAttributes();
     }
 
     /**
@@ -270,12 +287,13 @@ new class extends Component {
         RateLimiter::hit($key, 600);
 
         $details = collect($validated)
-            ->except(['declared_value', 'service_level', 'agree', 'saveSender', 'saveReceiver'])
+            ->except(['declared_value', 'service_level', 'agree', 'saveSender', 'saveReceiver', 'items', 'export_reason'])
             ->map(fn ($value) => $value === '' ? null : $value)
             ->all();
         $details['declared_value_cents'] = Money::toCents($validated['declared_value'] ?? 0);
+        $details['export_reason'] = $this->crossesBorder() ? $validated['export_reason'] : null;
 
-        $shipment = $bookShipment->handle($details, $quote, auth()->user());
+        $shipment = $bookShipment->handle($details, $quote, auth()->user(), $this->crossesBorder() ? $validated['items'] : []);
 
         if ($user = auth()->user()) {
             foreach (['sender' => $this->saveSender, 'receiver' => $this->saveReceiver] as $prefix => $save) {
@@ -364,7 +382,9 @@ new class extends Component {
                     <div class="grid-3">
                         <x-field label="Pieces" model="pieces" type="number" />
                         <x-field label="Total weight (lb)" model="weight_lb" type="number" step="0.1" live />
-                        <x-field label="Value (USD, optional)" model="declared_value" type="number" hint="For customs." />
+                        @unless ($this->crossesBorder())
+                            <x-field label="Value (USD, optional)" model="declared_value" type="number" hint="For insurance and claims." />
+                        @endunless
                     </div>
                     <div class="grid-3">
                         <x-field label="Length (in)" model="length_in" type="number" live />
@@ -379,6 +399,13 @@ new class extends Component {
                         <textarea rows="3" wire:model="notes" placeholder="Gate code, best time to call, fragile items…"></textarea>
                     </label>
                 </fieldset>
+
+                @if ($this->crossesBorder())
+                    <fieldset class="card step-card" wire:key="customs-step">
+                        <legend><span class="step-num">4</span> Customs details</legend>
+                        <x-customs-items :items="$items" :total="$this->customsTotalCents()" />
+                    </fieldset>
+                @endif
             </div>
 
             <aside class="ship-summary">

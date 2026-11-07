@@ -170,6 +170,7 @@ test('logged in, the pickup form uses my address book and links the shipment to 
         ->set('weight_lb', '2')
         ->set('service_level', 'express')
         ->set('agree', true)
+        ->set('items', [['description' => 'Fashion samples', 'quantity' => '2', 'unit_value' => '40', 'origin_country' => 'US', 'hs_code' => '']])
         ->call('book')
         ->assertHasNoErrors();
 
@@ -196,6 +197,7 @@ test('ticking save adds the receiver to my address book', function () {
         ->set('weight_lb', '2')
         ->set('service_level', 'express')
         ->set('agree', true)
+        ->set('items', [['description' => 'Fashion samples', 'quantity' => '2', 'unit_value' => '40', 'origin_country' => 'US', 'hs_code' => '']])
         ->call('book')
         ->assertHasNoErrors();
 

@@ -10,6 +10,7 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::livewire('shipments/{shipment}', 'pages::admin.shipments.show')->name('shipments.show');
     Route::livewire('shipments/{shipment}/edit', 'pages::admin.shipments.form')->name('shipments.edit');
     Route::get('shipments/{shipment}/waybill', [WaybillController::class, 'admin'])->name('shipments.waybill');
+    Route::get('shipments/{shipment}/commercial-invoice', [WaybillController::class, 'adminCommercialInvoice'])->name('shipments.invoice');
     Route::livewire('enquiries', 'pages::admin.enquiries')->name('enquiries');
     Route::livewire('rates', 'pages::admin.rates')->name('rates');
     Route::livewire('services', 'pages::admin.services')->name('services');

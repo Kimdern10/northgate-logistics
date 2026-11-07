@@ -20,10 +20,11 @@ class BookShipment
 {
     /**
      * @param  array<string, mixed>  $details  validated form fields named like the shipment columns
+     * @param  list<array{description: string, quantity: int|string, unit_value: int|float|string, origin_country: string, hs_code?: string|null}>  $customsItems  only for parcels crossing a border
      */
-    public function handle(array $details, Quote $quote, ?User $customer = null): Shipment
+    public function handle(array $details, Quote $quote, ?User $customer = null, array $customsItems = []): Shipment
     {
-        $shipment = DB::transaction(function () use ($details, $quote, $customer): Shipment {
+        $shipment = DB::transaction(function () use ($details, $quote, $customer, $customsItems): Shipment {
             $pickupDate = CarbonImmutable::parse($details['pickup_date']);
 
             $shipment = Shipment::query()->create([
@@ -42,6 +43,10 @@ class BookShipment
                 'description' => 'Pickup booked online. A courier will collect the parcel on '.$pickupDate->format('D j M').'.',
                 'happened_at' => now(),
             ]);
+
+            if ($customsItems !== [] && $shipment->crossesBorder()) {
+                $shipment->replaceCustomsItems($customsItems);
+            }
 
             return $shipment;
         });

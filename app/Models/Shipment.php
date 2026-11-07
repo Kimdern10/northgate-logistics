@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\ServiceLevel;
 use App\Enums\ShipmentStatus;
 use App\Support\Countries;
+use App\Support\Money;
 use Database\Factories\ShipmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -49,6 +50,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $pickup_date
  * @property Carbon|null $estimated_delivery_date
  * @property Carbon|null $delivered_at
+ * @property string|null $export_reason
  * @property string|null $received_by
  * @property string|null $delivery_photo_path
  * @property string|null $notes
@@ -59,7 +61,7 @@ use Illuminate\Support\Str;
     'user_id', 'status', 'service_level', 'source',
     'sender_name', 'sender_company', 'sender_email', 'sender_phone', 'sender_address', 'sender_city', 'sender_country',
     'receiver_name', 'receiver_company', 'receiver_email', 'receiver_phone', 'receiver_address', 'receiver_city', 'receiver_country',
-    'contents', 'pieces', 'weight_lb', 'length_in', 'width_in', 'height_in', 'declared_value_cents', 'price_cents',
+    'contents', 'export_reason', 'pieces', 'weight_lb', 'length_in', 'width_in', 'height_in', 'declared_value_cents', 'price_cents',
     'pickup_date', 'estimated_delivery_date', 'delivered_at', 'received_by', 'notes',
 ])]
 class Shipment extends Model
@@ -71,6 +73,20 @@ class Shipment extends Model
      * Most tracking numbers looked up in one go, like UPS and FedEx allow.
      */
     public const int MAX_TRACKED_AT_ONCE = 10;
+
+    /**
+     * Why goods cross a border, as asked on customs forms.
+     *
+     * @var array<string, string>
+     */
+    public const array EXPORT_REASONS = [
+        'sale' => 'Sale (sold to the receiver)',
+        'gift' => 'Gift',
+        'sample' => 'Commercial sample',
+        'personal' => 'Personal belongings',
+        'documents' => 'Documents',
+        'return' => 'Return or repair',
+    ];
 
     protected $attributes = [
         'status' => 'booked',
@@ -120,6 +136,48 @@ class Shipment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Customs lines for a shipment that crosses a border.
+     *
+     * @return HasMany<ShipmentItem, $this>
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(ShipmentItem::class)->orderBy('id');
+    }
+
+    public function crossesBorder(): bool
+    {
+        return strtoupper($this->sender_country) !== strtoupper($this->receiver_country);
+    }
+
+    public function exportReasonLabel(): ?string
+    {
+        return $this->export_reason ? (self::EXPORT_REASONS[$this->export_reason] ?? ucfirst($this->export_reason)) : null;
+    }
+
+    /**
+     * Replace the customs lines with the ones typed in a form and set the declared value to their total.
+     *
+     * @param  list<array{description: string, quantity: int|string, unit_value: int|float|string, origin_country: string, hs_code?: string|null}>  $rows
+     */
+    public function replaceCustomsItems(array $rows): void
+    {
+        $this->items()->delete();
+
+        foreach ($rows as $row) {
+            $this->items()->create([
+                'description' => $row['description'],
+                'quantity' => (int) $row['quantity'],
+                'unit_value_cents' => Money::toCents($row['unit_value']),
+                'origin_country' => strtoupper($row['origin_country']),
+                'hs_code' => filled($row['hs_code'] ?? null) ? $row['hs_code'] : null,
+            ]);
+        }
+
+        $this->forceFill(['declared_value_cents' => (int) $this->items()->get()->sum(fn (ShipmentItem $item): int => $item->totalValueCents())])->save();
     }
 
     /**

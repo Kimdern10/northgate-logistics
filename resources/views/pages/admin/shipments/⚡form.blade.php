@@ -1,6 +1,7 @@
 <?php
 
 use App\Actions\RecordTrackingUpdate;
+use App\Livewire\ShipmentForm;
 use App\Enums\ServiceLevel;
 use App\Enums\ShipmentStatus;
 use App\Models\Shipment;
@@ -11,7 +12,7 @@ use Flux\Flux;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
-new class extends Component {
+new class extends ShipmentForm {
     public ?Shipment $shipment = null;
 
     public string $sender_name = '';
@@ -26,8 +27,6 @@ new class extends Component {
 
     public string $sender_city = '';
 
-    public string $sender_country = 'US';
-
     public string $receiver_name = '';
 
     public string $receiver_company = '';
@@ -39,8 +38,6 @@ new class extends Component {
     public string $receiver_address = '';
 
     public string $receiver_city = '';
-
-    public string $receiver_country = 'GB';
 
     public string $contents = '';
 
@@ -85,9 +82,34 @@ new class extends Component {
 
             $this->declared_value = Money::toDecimal($shipment->declared_value_cents);
             $this->price = Money::toDecimal($shipment->price_cents);
+            $this->export_reason = $shipment->export_reason ?? $this->export_reason;
+            $this->items = $shipment->items->map(fn ($item): array => [
+                'description' => $item->description,
+                'quantity' => (string) $item->quantity,
+                'unit_value' => Money::toDecimal($item->unit_value_cents),
+                'origin_country' => $item->origin_country,
+                'hs_code' => (string) $item->hs_code,
+            ])->all();
         } else {
             $this->pickup_date = now()->toDateString();
         }
+
+        $this->ensureCustomsLine();
+    }
+
+    public function updated(string $property): void
+    {
+        if (in_array($property, ['sender_country', 'receiver_country'], true)) {
+            $this->ensureCustomsLine();
+        }
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function validationAttributes(): array
+    {
+        return $this->customsAttributes();
     }
 
     /**
@@ -137,7 +159,7 @@ new class extends Component {
             'estimated_delivery_date' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'initial_status' => ['required', Rule::enum(ShipmentStatus::class)],
-        ];
+        ] + $this->customsRules();
     }
 
     /**
@@ -177,15 +199,18 @@ new class extends Component {
             ->all();
         $attributes['declared_value_cents'] = Money::toCents($validated['declared_value'] ?? 0);
         $attributes['price_cents'] = Money::toCents($validated['price']);
+        $attributes['export_reason'] = $this->crossesBorder() ? $validated['export_reason'] : null;
 
         if ($this->shipment) {
             $this->shipment->update($attributes);
+            $this->saveCustomsItems($this->shipment, $validated);
             Flux::toast(variant: 'success', text: 'Shipment saved.');
 
             return $this->redirectRoute('admin.shipments.show', $this->shipment, navigate: true);
         }
 
         $shipment = Shipment::query()->create([...$attributes, 'status' => ShipmentStatus::Booked]);
+        $this->saveCustomsItems($shipment, $validated);
         $status = ShipmentStatus::from($validated['initial_status']);
 
         $recordUpdate->handle(
@@ -199,6 +224,18 @@ new class extends Component {
         Flux::toast(variant: 'success', text: "Shipment {$shipment->tracking_number} created.");
 
         return $this->redirectRoute('admin.shipments.show', $shipment, navigate: true);
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function saveCustomsItems(Shipment $shipment, array $validated): void
+    {
+        if ($this->crossesBorder()) {
+            $shipment->replaceCustomsItems($validated['items']);
+        } else {
+            $shipment->items()->delete();
+        }
     }
 
     public function render()
@@ -227,7 +264,7 @@ new class extends Component {
                     <flux:input wire:model="{{ $prefix }}_address" label="Address" />
                     <div class="grid gap-4 sm:grid-cols-2">
                         <flux:input wire:model="{{ $prefix }}_city" label="City" />
-                        <flux:select wire:model="{{ $prefix }}_country" label="Country">
+                        <flux:select wire:model.live="{{ $prefix }}_country" label="Country">
                             @foreach (Countries::options() as $code => $name)
                                 <flux:select.option :value="$code">{{ $name }}</flux:select.option>
                             @endforeach
@@ -246,7 +283,9 @@ new class extends Component {
                 <flux:input wire:model="length_in" type="number" label="Length (in)" />
                 <flux:input wire:model="width_in" type="number" label="Width (in)" />
                 <flux:input wire:model="height_in" type="number" label="Height (in)" />
-                <flux:input wire:model="declared_value" type="number" step="0.01" label="Value (USD)" />
+                @unless ($this->crossesBorder())
+                    <flux:input wire:model="declared_value" type="number" step="0.01" label="Value (USD)" />
+                @endunless
             </div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <flux:select wire:model="service_level" label="Service">
@@ -268,6 +307,47 @@ new class extends Component {
                 </flux:select>
             @endunless
         </flux:card>
+
+        @if ($this->crossesBorder())
+            <flux:card class="flex flex-col gap-4" wire:key="customs-card">
+                <div>
+                    <flux:heading size="lg">Customs details</flux:heading>
+                    <flux:text>This parcel crosses a border. These lines are printed on the commercial invoice, and their total becomes the declared value.</flux:text>
+                </div>
+                <div class="max-w-xs">
+                    <flux:select wire:model="export_reason" label="Reason for export">
+                        @foreach (Shipment::EXPORT_REASONS as $value => $label)
+                            <flux:select.option :value="$value">{{ $label }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </div>
+                @foreach ($items as $index => $item)
+                    <div class="grid items-start gap-3 rounded-lg bg-zinc-50 p-3 sm:grid-cols-12 dark:bg-zinc-800" wire:key="admin-item-{{ $index }}">
+                        <div class="sm:col-span-4"><flux:input wire:model.blur="items.{{ $index }}.description" label="Item {{ $index + 1 }}" placeholder="Cotton T-shirts" /></div>
+                        <div class="sm:col-span-1"><flux:input wire:model.live.debounce.400ms="items.{{ $index }}.quantity" type="number" label="Qty" /></div>
+                        <div class="sm:col-span-2"><flux:input wire:model.live.debounce.400ms="items.{{ $index }}.unit_value" type="number" step="0.01" label="Value each ($)" /></div>
+                        <div class="sm:col-span-2">
+                            <flux:select wire:model="items.{{ $index }}.origin_country" label="Made in">
+                                @foreach (Countries::options() as $code => $name)
+                                    <flux:select.option :value="$code">{{ $name }}</flux:select.option>
+                                @endforeach
+                            </flux:select>
+                        </div>
+                        <div class="sm:col-span-2"><flux:input wire:model.blur="items.{{ $index }}.hs_code" label="HS code" placeholder="6109.10" /></div>
+                        <div class="sm:col-span-1 sm:pt-6">
+                            @if (count($items) > 1)
+                                <flux:button size="sm" variant="ghost" icon="trash" wire:click="removeItem({{ $index }})" aria-label="Remove item" />
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+                <flux:error name="items" />
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <flux:button size="sm" icon="plus" wire:click="addItem">Add item</flux:button>
+                    <flux:text>Total declared value: <strong>{{ Money::format($this->customsTotalCents()) }}</strong></flux:text>
+                </div>
+            </flux:card>
+        @endif
 
         <div class="flex gap-3">
             <flux:button type="submit" variant="primary">{{ $shipment ? 'Save changes' : 'Create shipment' }}</flux:button>

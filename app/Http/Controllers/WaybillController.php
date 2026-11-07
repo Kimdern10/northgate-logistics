@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shipment;
+use App\Support\CommercialInvoice;
 use App\Support\Waybill;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -18,6 +19,7 @@ class WaybillController extends Controller
         return view('pages.booked', [
             'shipment' => $shipment,
             'waybillUrl' => Waybill::signedUrl($shipment),
+            'invoiceUrl' => CommercialInvoice::isNeeded($shipment) ? CommercialInvoice::signedUrl($shipment) : null,
         ]);
     }
 
@@ -39,5 +41,25 @@ class WaybillController extends Controller
         Gate::authorize('downloadWaybill', $shipment);
 
         return Waybill::download($shipment);
+    }
+
+    /**
+     * Signed link from the booking page or confirmation email.
+     */
+    public function commercialInvoice(Shipment $shipment): Response
+    {
+        return CommercialInvoice::download($shipment);
+    }
+
+    public function accountCommercialInvoice(Shipment $shipment): Response
+    {
+        Gate::authorize('downloadWaybill', $shipment);
+
+        return CommercialInvoice::download($shipment);
+    }
+
+    public function adminCommercialInvoice(Shipment $shipment): Response
+    {
+        return CommercialInvoice::download($shipment);
     }
 }

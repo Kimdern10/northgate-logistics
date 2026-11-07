@@ -137,6 +137,9 @@ new class extends Component {
         </div>
         <div class="flex flex-wrap gap-2">
             <flux:button icon="printer" :href="route('admin.shipments.waybill', $shipment)">Waybill PDF</flux:button>
+            @if (\App\Support\CommercialInvoice::isNeeded($shipment))
+                <flux:button icon="document-text" :href="route('admin.shipments.invoice', $shipment)">Commercial invoice</flux:button>
+            @endif
             <flux:button icon="eye" :href="route('track.show', $shipment->tracking_number)" target="_blank">Public page</flux:button>
             <flux:button icon="pencil-square" :href="route('admin.shipments.edit', $shipment)" wire:navigate>Edit</flux:button>
         </div>
@@ -231,6 +234,20 @@ new class extends Component {
                     <flux:text>{{ $shipment->notes }}</flux:text>
                 @endif
             </flux:card>
+
+            @if ($shipment->items->isNotEmpty())
+                <flux:card>
+                    <flux:heading class="mb-3">Customs items · {{ $shipment->exportReasonLabel() }}</flux:heading>
+                    <ul class="flex flex-col gap-2 text-sm">
+                        @foreach ($shipment->items as $item)
+                            <li class="flex justify-between gap-3">
+                                <span>{{ $item->quantity }} × {{ $item->description }} <span class="text-zinc-500">({{ $item->originName() }}{{ $item->hs_code ? ', HS '.$item->hs_code : '' }})</span></span>
+                                <span>{{ Money::format($item->totalValueCents()) }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </flux:card>
+            @endif
 
             <div>
                 <flux:button variant="danger" size="sm" icon="trash" wire:click="deleteShipment" wire:confirm="Delete shipment {{ $shipment->tracking_number }} and its whole timeline? This cannot be undone.">Delete shipment</flux:button>

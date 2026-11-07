@@ -68,6 +68,7 @@ test('staff can create a shipment with a tracking number', function () {
         ->set('weight_lb', '2')
         ->set('service_level', 'standard')
         ->set('initial_status', 'at_hub')
+        ->set('items', [['description' => 'Fashion samples', 'quantity' => '2', 'unit_value' => '40', 'origin_country' => 'US', 'hs_code' => '']])
         ->call('calculate')
         ->assertSet('price', '34.00')
         ->call('save')
