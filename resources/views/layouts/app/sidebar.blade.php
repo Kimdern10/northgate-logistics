@@ -10,6 +10,16 @@
                 <flux:sidebar.collapse class="lg:hidden" />
             </flux:sidebar.header>
 
+            @if (auth()->user()->is_driver)
+                <flux:sidebar.nav>
+                    <flux:sidebar.group :heading="__('Driver')" class="grid">
+                        <flux:sidebar.item icon="truck" :href="route('driver')" :current="request()->routeIs('driver')" wire:navigate>
+                            {{ __('My jobs') }}
+                        </flux:sidebar.item>
+                    </flux:sidebar.group>
+                </flux:sidebar.nav>
+            @endif
+
             <flux:sidebar.nav>
                 <flux:sidebar.group :heading="__('My account')" class="grid">
                     <flux:sidebar.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
@@ -38,6 +48,9 @@
                         </flux:sidebar.item>
                         <flux:sidebar.item icon="inbox" :href="route('admin.enquiries')" :current="request()->routeIs('admin.enquiries')" wire:navigate :badge="\App\Models\Enquiry::query()->where('status', 'new')->count() ?: null">
                             {{ __('Quote requests') }}
+                        </flux:sidebar.item>
+                        <flux:sidebar.item icon="identification" :href="route('admin.drivers')" :current="request()->routeIs('admin.drivers')" wire:navigate>
+                            {{ __('Drivers') }}
                         </flux:sidebar.item>
                         <flux:sidebar.item icon="calculator" :href="route('admin.rates')" :current="request()->routeIs('admin.rates')" wire:navigate>
                             {{ __('Rates') }}

@@ -22,6 +22,7 @@ class ShipmentPolicy
     public function viewProofOfDelivery(User $user, Shipment $shipment): bool
     {
         return $user->is_admin
+            || ($user->is_driver && $shipment->driver_id === $user->id)
             || $user->sentShipment($shipment)
             || ($user->hasVerifiedEmail() && $shipment->receiver_email === strtolower($user->email));
     }

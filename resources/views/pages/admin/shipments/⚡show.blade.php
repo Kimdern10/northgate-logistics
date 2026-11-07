@@ -20,7 +20,20 @@ new class extends Component {
     /** Proof of delivery photo, sent with a "Delivered" update. */
     public $deliveryPhoto = null;
 
+    public string $driverId = '';
+
     public string $paymentMethod = 'cash';
+
+    /**
+     * Assign (or unassign) the courier straight away when the select changes.
+     */
+    public function updatedDriverId(string $value): void
+    {
+        $driver = $value === '' ? null : \App\Models\User::query()->where('is_driver', true)->find($value);
+        $this->shipment->forceFill(['driver_id' => $driver?->id])->save();
+
+        Flux::toast(variant: 'success', text: $driver ? "Assigned to {$driver->name}." : 'Driver removed.');
+    }
 
     public string $paymentReference = '';
 
@@ -52,6 +65,7 @@ new class extends Component {
     public function mount(Shipment $shipment): void
     {
         $this->shipment = $shipment;
+        $this->driverId = (string) $shipment->driver_id;
         $this->resetUpdateForm();
     }
 
@@ -257,6 +271,18 @@ new class extends Component {
                 @if ($shipment->notes)
                     <flux:separator class="my-3" />
                     <flux:text>{{ $shipment->notes }}</flux:text>
+                @endif
+            </flux:card>
+
+            <flux:card class="flex flex-col gap-2">
+                <flux:select wire:model.live="driverId" label="Driver" description="The courier who collects or delivers it sees it on their phone.">
+                    <flux:select.option value="">Not assigned</flux:select.option>
+                    @foreach (\App\Models\User::query()->where('is_driver', true)->orderBy('name')->get() as $driver)
+                        <flux:select.option :value="$driver->id">{{ $driver->name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+                @if (! \App\Models\User::query()->where('is_driver', true)->exists())
+                    <flux:text class="text-xs">No drivers yet. <flux:link :href="route('admin.drivers')" wire:navigate>Add one</flux:link>.</flux:text>
                 @endif
             </flux:card>
 

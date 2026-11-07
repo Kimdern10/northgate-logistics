@@ -29,6 +29,8 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
  * @property string|null $two_factor_recovery_codes
  * @property Carbon|null $two_factor_confirmed_at
  * @property bool $is_admin
+ * @property bool $is_driver
+ * @property string|null $phone
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
@@ -51,7 +53,18 @@ class User extends Authenticatable implements MustVerifyEmail, PasskeyUser
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'is_admin' => 'boolean',
+            'is_driver' => 'boolean',
         ];
+    }
+
+    /**
+     * Pickups and deliveries assigned to this driver.
+     *
+     * @return HasMany<Shipment, $this>
+     */
+    public function assignedShipments(): HasMany
+    {
+        return $this->hasMany(Shipment::class, 'driver_id');
     }
 
     /**

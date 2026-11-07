@@ -19,4 +19,10 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::livewire('testimonials', 'pages::admin.testimonials')->name('testimonials');
     Route::livewire('faqs', 'pages::admin.faqs')->name('faqs');
     Route::livewire('settings', 'pages::admin.settings')->name('settings');
+    Route::livewire('drivers', 'pages::admin.drivers')->name('drivers');
+});
+
+// The phone-friendly page couriers use on the road.
+Route::middleware(['auth', 'verified', 'driver'])->group(function () {
+    Route::livewire('driver', 'pages::driver')->name('driver');
 });

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ShipmentStatus;
 use App\Models\Shipment;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -32,6 +33,16 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(DemoShipmentSeeder::class);
+
+        // A courier with today's pickups and deliveries, for trying the driver page.
+        $driver = User::factory()->driver()->create([
+            'name' => 'Carlos Diaz',
+            'email' => 'driver@northgate.example',
+        ]);
+
+        Shipment::query()
+            ->whereIn('status', [ShipmentStatus::Booked, ShipmentStatus::OutForDelivery])
+            ->update(['driver_id' => $driver->id]);
 
         // A customer account: sender of NT1000000001, so it sees that shipment and its own history.
         $customer = User::factory()->create([

@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
  *
  * @property int $id
  * @property int|null $user_id
+ * @property int|null $driver_id
  * @property string $tracking_number
  * @property ShipmentStatus $status
  * @property ServiceLevel $service_level
@@ -67,7 +68,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $updated_at
  */
 #[Fillable([
-    'user_id', 'status', 'service_level', 'source',
+    'user_id', 'driver_id', 'status', 'service_level', 'source',
     'sender_name', 'sender_company', 'sender_email', 'sender_phone', 'sender_address', 'sender_city', 'sender_country',
     'receiver_name', 'receiver_company', 'receiver_email', 'receiver_phone', 'receiver_address', 'receiver_city', 'receiver_country',
     'base_fee_cents', 'weight_charge_cents', 'fuel_surcharge_cents', 'chargeable_weight_lb',
@@ -97,6 +98,19 @@ class Shipment extends Model
         'personal' => 'Personal belongings',
         'documents' => 'Documents',
         'return' => 'Return or repair',
+    ];
+
+    /**
+     * Why a driver could not deliver, shown as big buttons on the driver page.
+     *
+     * @var array<string, string>
+     */
+    public const array FAILED_DELIVERY_REASONS = [
+        'nobody' => 'Nobody home',
+        'address' => 'Wrong or incomplete address',
+        'refused' => 'Receiver refused it',
+        'closed' => 'Business closed',
+        'access' => 'Could not get access',
     ];
 
     /**
@@ -164,6 +178,16 @@ class Shipment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The courier assigned to collect or deliver it.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function driver(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'driver_id');
     }
 
     /**

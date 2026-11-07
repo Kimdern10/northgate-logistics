@@ -23,6 +23,12 @@ class LoginResponse implements LoginResponseContract, TwoFactorLoginResponse
             return new JsonResponse(['two_factor' => false]);
         }
 
-        return redirect()->intended(route($request->user()?->is_admin ? 'admin.dashboard' : 'dashboard', absolute: false));
+        $home = match (true) {
+            (bool) $request->user()?->is_admin => 'admin.dashboard',
+            (bool) $request->user()?->is_driver => 'driver',
+            default => 'dashboard',
+        };
+
+        return redirect()->intended(route($home, absolute: false));
     }
 }

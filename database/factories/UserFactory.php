@@ -46,6 +46,16 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_admin' => true]);
+    }
+
+    public function driver(): static
+    {
+        return $this->state(fn (array $attributes) => ['is_driver' => true, 'phone' => '+1 (212) 555-'.fake()->numerify('####')]);
+    }
+
     /**
      * Indicate that the model has two-factor authentication configured.
      */
