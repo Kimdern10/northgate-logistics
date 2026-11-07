@@ -45,9 +45,9 @@
         <meta property="og:url" content="{{ url()->current() }}">
         <meta name="twitter:card" content="summary">
         <meta name="theme-color" content="#0c2340">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        <link rel="icon" href="/favicon.svg?v=3" type="image/svg+xml">
+        <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3">
         <script>document.documentElement.classList.add('js'); try { var t = localStorage.getItem('ng-theme'); if (t === 'light' || t === 'dark') { document.documentElement.dataset.theme = t; } } catch (e) {}</script>
         @fonts('plus-jakarta-sans')
         @vite(['resources/css/site.css', 'resources/js/site.js'])
