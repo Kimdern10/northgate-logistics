@@ -149,6 +149,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .account-link { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--text) !important; text-decoration: none; font-weight: 600; font-size: .9rem; transition: border-color .2s; }
 .account-link:hover { border-color: var(--orange); }
 @media (max-width: 560px) { .account-link { width: 40px; padding: 0; justify-content: center; } }
+.signup-btn { height: 40px; border-radius: 999px; border-color: var(--orange); color: var(--orange-dark) !important; }
+.signup-btn:hover { background: var(--orange); color: #fff !important; }
+@media (max-width: 380px) { .signup-btn { padding: 0 .8em; } }
 .menu-toggle { display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px; }
 .menu-toggle span { display: block; width: 18px; height: 2px; background: currentColor; border-radius: 2px; transition: transform .3s var(--ease); }
 .menu-open .menu-toggle span:first-child { transform: translateY(3.5px) rotate(45deg); }
@@ -175,8 +178,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 
 /* Reveal on scroll */
-.js [data-reveal] { opacity: 0; transform: translateY(26px); transition: opacity .7s var(--ease), transform .7s var(--ease); transition-delay: calc(var(--i, 0) * 80ms); }
-.js [data-reveal].is-visible { opacity: 1; transform: none; }
+/* Hidden until it scrolls into view; site.js fades it in with a Web Animation that keeps it visible. */
+.js [data-reveal] { opacity: 0; translate: 0 26px; }
+.js [data-reveal].is-visible { opacity: 1; translate: 0 0; }
 
 /* Sections */
 .section { padding: clamp(56px, 8vw, 104px) 0; }
@@ -218,7 +222,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
     animation: float 6s ease-in-out infinite;
 }
 @keyframes float { 50% { transform: translateY(-8px); } }
-.js .track-box[data-reveal].is-visible { transform: none; }
 .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; background: var(--surface-2); border-radius: 14px; margin-bottom: 18px; }
 .tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 0; padding: 10px; border-radius: 10px; background: transparent; color: var(--muted); font-weight: 700; cursor: pointer; transition: background .2s, color .2s; }
 .tabs button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
@@ -634,5 +637,5 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
-    .js [data-reveal] { opacity: 1; transform: none; }
+    .js [data-reveal] { opacity: 1; translate: none; }
 }

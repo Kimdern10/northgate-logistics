@@ -47,6 +47,7 @@
         <meta name="theme-color" content="#0c2340">
         <link rel="icon" href="/favicon.svg" type="image/svg+xml">
         <link rel="icon" href="/favicon.ico" sizes="any">
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
         <script>document.documentElement.classList.add('js'); try { var t = localStorage.getItem('ng-theme'); if (t === 'light' || t === 'dark') { document.documentElement.dataset.theme = t; } } catch (e) {}</script>
         @fonts('plus-jakarta-sans')
         @vite(['resources/css/site.css', 'resources/js/site.js'])
@@ -76,6 +77,7 @@
                         <a class="account-link" href="{{ route('dashboard') }}" title="My account"><x-icon name="user" /><span class="hide-sm">My account</span></a>
                     @else
                         <a class="account-link" href="{{ route('login') }}"><x-icon name="user" /><span class="hide-sm">Log in</span></a>
+                        <a class="btn btn--ghost btn--sm signup-btn" href="{{ route('register') }}">Sign up</a>
                     @endauth
                     <a class="btn btn--primary btn--sm hide-sm" href="{{ route('ship') }}" wire:navigate.hover>Book a pickup</a>
                     <button class="icon-btn menu-toggle" type="button" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>

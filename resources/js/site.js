@@ -77,6 +77,24 @@ document.addEventListener('click', (event) => {
     }
 });
 
+// Fade an element in. The visible state is held by a Web Animation (fill: forwards), not only by
+// the "is-visible" class: when Livewire refreshes a form while someone types, it resets classes to
+// what the server sent, which used to hide the whole form again. Running animations survive that.
+const show = (item) => {
+    item.classList.add('is-visible');
+
+    if (item.getAnimations().some((animation) => animation.id === 'reveal')) {
+        return;
+    }
+
+    const delay = (parseFloat(getComputedStyle(item).getPropertyValue('--i')) || 0) * 80;
+
+    item.animate(
+        [{ opacity: 0, translate: '0 26px' }, { opacity: 1, translate: '0 0' }],
+        { id: 'reveal', duration: 700, delay, easing: 'cubic-bezier(.2, .7, .2, 1)', fill: 'forwards' },
+    );
+};
+
 const reveal = () => {
     observer?.disconnect();
 
@@ -91,7 +109,7 @@ const reveal = () => {
     observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
+                show(entry.target);
                 observer.unobserve(entry.target);
             }
         });
