@@ -10,9 +10,15 @@ use Carbon\CarbonImmutable;
 use Flux\Flux;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 new class extends Component {
+    use WithFileUploads;
+
     public Shipment $shipment;
+
+    /** Proof of delivery photo, sent with a "Delivered" update. */
+    public $deliveryPhoto = null;
 
     public string $status = '';
 
@@ -47,6 +53,7 @@ new class extends Component {
         $this->location = $this->shipment->events()->first()?->location ?? $this->shipment->origin();
         $this->description = '';
         $this->received_by = '';
+        $this->deliveryPhoto = null;
         $this->happened_at = now()->format('Y-m-d\TH:i');
         $this->notify = true;
     }
@@ -59,10 +66,11 @@ new class extends Component {
             'description' => ['nullable', 'string', 'max:255'],
             'happened_at' => ['required', 'date', 'before_or_equal:'.now()->addHour()->toDateTimeString()],
             'received_by' => ['nullable', 'string', 'max:120'],
+            'deliveryPhoto' => ['nullable', 'image', 'max:10240'],
             'notify' => ['boolean'],
         ], [
             'happened_at.before_or_equal' => 'The date and time cannot be in the future.',
-        ]);
+        ], ['deliveryPhoto' => 'delivery photo']);
 
         $recordUpdate->handle(
             $this->shipment,
@@ -72,6 +80,7 @@ new class extends Component {
             CarbonImmutable::parse($validated['happened_at']),
             $validated['notify'],
             $validated['received_by'] ?: null,
+            $this->deliveryPhoto,
         );
 
         $this->shipment->refresh();
@@ -150,6 +159,13 @@ new class extends Component {
                     <flux:input wire:model="description" label="Note (optional, shown to the customer)" placeholder="e.g. Departed on flight to London" />
                     @if ($status === ShipmentStatus::Delivered->value)
                         <flux:input wire:model="received_by" label="Received by (optional)" />
+                        <div>
+                            <flux:input type="file" wire:model="deliveryPhoto" accept="image/*" capture="environment" label="Proof of delivery photo (optional)" description="A photo of the parcel at the door. Only staff, the sender and the receiver can see it." />
+                            <div wire:loading wire:target="deliveryPhoto" class="mt-1 text-sm text-zinc-500">Uploading photo…</div>
+                            @if ($deliveryPhoto && method_exists($deliveryPhoto, 'temporaryUrl') && str_starts_with((string) $deliveryPhoto->getMimeType(), 'image/'))
+                                <img src="{{ $deliveryPhoto->temporaryUrl() }}" alt="Photo preview" class="mt-2 h-28 rounded-lg object-cover">
+                            @endif
+                        </div>
                     @endif
                     <flux:checkbox wire:model="notify" label="Email the sender and receiver if the status changes" description="{{ implode(', ', $shipment->notifiableEmails()) ?: 'No email addresses on this shipment.' }}" />
                     <div><flux:button type="submit" variant="primary">Add update</flux:button></div>
@@ -203,6 +219,13 @@ new class extends Component {
                         <dt class="text-zinc-500">Delivered</dt><dd>{{ $shipment->delivered_at->format('D j M Y, g:i a') }}{{ $shipment->received_by ? ' · '.$shipment->received_by : '' }}</dd>
                     @endif
                 </dl>
+                @if ($shipment->delivery_photo_path)
+                    <flux:separator class="my-3" />
+                    <flux:heading size="sm" class="mb-2">Proof of delivery</flux:heading>
+                    <a href="{{ route('shipments.proof', $shipment->tracking_number) }}" target="_blank">
+                        <img src="{{ route('shipments.proof', $shipment->tracking_number) }}" alt="Proof of delivery photo for {{ $shipment->tracking_number }}" class="max-h-56 w-full rounded-lg object-cover">
+                    </a>
+                @endif
                 @if ($shipment->notes)
                     <flux:separator class="my-3" />
                     <flux:text>{{ $shipment->notes }}</flux:text>

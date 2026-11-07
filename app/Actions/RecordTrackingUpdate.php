@@ -6,8 +6,10 @@ use App\Enums\ShipmentStatus;
 use App\Mail\ShipmentStatusUpdated;
 use App\Models\Shipment;
 use App\Models\TrackingEvent;
+use App\Support\DeliveryPhoto;
 use App\Support\SendAfterResponse;
 use Carbon\CarbonInterface;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -29,6 +31,7 @@ class RecordTrackingUpdate
         ?CarbonInterface $happenedAt = null,
         bool $notify = true,
         ?string $receivedBy = null,
+        ?UploadedFile $deliveryPhoto = null,
     ): TrackingEvent {
         $this->emailed = 0;
         $previousStatus = $shipment->status;
@@ -55,6 +58,10 @@ class RecordTrackingUpdate
 
             return $event;
         });
+
+        if ($deliveryPhoto && $status === ShipmentStatus::Delivered) {
+            DeliveryPhoto::store($shipment, $deliveryPhoto);
+        }
 
         if ($notify && $shipment->status === $status && $previousStatus !== $status) {
             $this->notify($shipment, $event);

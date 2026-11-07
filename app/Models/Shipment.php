@@ -50,6 +50,7 @@ use Illuminate\Support\Str;
  * @property Carbon|null $estimated_delivery_date
  * @property Carbon|null $delivered_at
  * @property string|null $received_by
+ * @property string|null $delivery_photo_path
  * @property string|null $notes
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at

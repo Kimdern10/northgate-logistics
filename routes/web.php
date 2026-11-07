@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ProofOfDeliveryController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\WaybillController;
@@ -38,6 +39,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('account/shipments/{shipment:tracking_number}', 'pages::account.shipment')->name('account.shipments.show');
     Route::get('account/shipments/{shipment:tracking_number}/waybill', [WaybillController::class, 'account'])->name('account.shipments.waybill');
     Route::livewire('account/addresses', 'pages::account.addresses')->name('account.addresses');
+    Route::get('shipments/{shipment:tracking_number}/proof-of-delivery', ProofOfDeliveryController::class)->name('shipments.proof');
 });
 
 require __DIR__.'/admin.php';

@@ -104,6 +104,20 @@ new class extends Component {
         </flux:callout>
     @endif
 
+    @if ($shipment->delivery_photo_path)
+        @can('viewProofOfDelivery', $shipment)
+            <flux:card class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <a href="{{ route('shipments.proof', $shipment->tracking_number) }}" target="_blank" class="shrink-0">
+                    <img src="{{ route('shipments.proof', $shipment->tracking_number) }}" alt="Proof of delivery photo" class="h-40 w-full rounded-lg object-cover sm:w-64">
+                </a>
+                <div>
+                    <flux:heading>Proof of delivery</flux:heading>
+                    <flux:text>Photo taken by our driver at delivery{{ $shipment->received_by ? ', signed for by '.$shipment->received_by : '' }}. Tap the photo to see it full size.</flux:text>
+                </div>
+            </flux:card>
+        @endcan
+    @endif
+
     <div class="grid gap-6 xl:grid-cols-5">
         <flux:card class="flex flex-col gap-4 xl:col-span-3">
             <flux:heading size="lg">Shipment history</flux:heading>

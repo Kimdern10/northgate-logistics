@@ -44,6 +44,15 @@
             <div><dt>Pieces</dt><dd>{{ $shipment->pieces }} · {{ rtrim(rtrim(number_format($shipment->weight_lb, 2), '0'), '.') }} lb</dd></div>
             @if ($shipment->status === ShipmentStatus::Delivered && $shipment->delivered_at)
                 <div><dt>Delivered</dt><dd>{{ $shipment->delivered_at->format('D j M Y, g:i a') }}@if ($shipment->received_by)<br><small>Signed by {{ $shipment->received_by }}</small>@endif</dd></div>
+                @if ($shipment->delivery_photo_path)
+                    <div><dt>Proof of delivery</dt><dd>
+                        @can('viewProofOfDelivery', $shipment)
+                            <a href="{{ route('shipments.proof', $shipment->tracking_number) }}" target="_blank">See the delivery photo</a>
+                        @else
+                            Photo on file. <small><a href="{{ route('login') }}">Log in</a> as the sender or receiver to see it.</small>
+                        @endcan
+                    </dd></div>
+                @endif
             @elseif ($shipment->estimated_delivery_date)
                 <div><dt>Expected by</dt><dd>{{ $shipment->estimated_delivery_date->format('D j M Y') }}</dd></div>
             @endif
