@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Branch;
 use App\Models\Faq;
 use App\Models\Service;
 use Illuminate\View\View;
@@ -24,13 +23,6 @@ class PageController extends Controller
         return view('pages.service', [
             'service' => $service,
             'others' => Service::query()->published()->whereKeyNot($service->id)->get(),
-        ]);
-    }
-
-    public function locations(): View
-    {
-        return view('pages.locations', [
-            'branches' => Branch::query()->published()->get(),
         ]);
     }
 }

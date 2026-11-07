@@ -514,6 +514,26 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .track-help h2 { font-size: 1.15rem; }
 .track-help p { color: var(--muted); margin: 0; }
 
+/* Live search results fade in as they change */
+.live-results > * { animation: fadeUp .35s var(--ease) both; }
+.track-inline__icon { pointer-events: none; }
+.spin-dot { display: inline-block; width: 1em; height: 1em; border-radius: 50%; border: 2px solid rgb(255 255 255 / 45%); border-top-color: #fff; animation: spin .7s linear infinite; vertical-align: -.15em; }
+.keep-typing { display: flex; align-items: center; gap: 10px; color: var(--muted); font-weight: 600; }
+.keep-typing .icon { color: var(--orange); }
+.multi-title { font-size: 1.3rem; margin: 0; }
+.live-search { position: relative; max-width: 420px; margin: 0 0 20px; }
+.live-search input { width: 100%; height: 48px; padding: 0 44px 0 44px; border-radius: 999px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); outline: none; }
+.live-search input:focus { border-color: var(--orange); box-shadow: 0 0 0 4px rgb(255 107 26 / 15%); }
+.live-search > .icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+.live-search .spin-dot { position: absolute; right: 16px; top: 15px; border-color: var(--orange-soft); border-top-color: var(--orange); }
+.locations-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-top: 28px; }
+.locations-toolbar .live-search { margin: 0; flex: 1 1 320px; }
+.chip-group { display: flex; gap: 6px; padding: 5px; border-radius: 999px; background: var(--surface-2); }
+.chip { border: 0; padding: 8px 16px; border-radius: 999px; background: transparent; color: var(--muted); font-weight: 700; cursor: pointer; transition: background .2s, color .2s; }
+.chip--active { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.results-count { margin: 14px 0 0; font-size: .9rem; }
+.branch-grid.live-results { margin-top: 14px; }
+.branch-grid .empty-state { grid-column: 1 / -1; }
 .multi-track { display: grid; gap: 14px; max-width: 900px; }
 .multi-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; color: var(--text) !important; text-decoration: none; transition: transform .3s var(--ease), border-color .3s; }
 .multi-row:hover { transform: translateX(6px); border-color: rgb(255 107 26 / 45%); }

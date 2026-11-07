@@ -16,9 +16,17 @@ new #[Title('Quote requests')] class extends Component {
     #[Url]
     public string $status = 'new';
 
+    #[Url(except: '')]
+    public string $search = '';
+
     public ?int $openId = null;
 
     public function updatedStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
     {
         $this->resetPage();
     }
@@ -28,6 +36,15 @@ new #[Title('Quote requests')] class extends Component {
     {
         return Enquiry::query()
             ->when(EnquiryStatus::tryFrom($this->status), fn ($query, EnquiryStatus $status) => $query->where('status', $status))
+            ->when(trim($this->search) !== '', function ($query): void {
+                $term = '%'.trim($this->search).'%';
+                $query->where(fn ($query) => $query
+                    ->where('name', 'like', $term)
+                    ->orWhere('company', 'like', $term)
+                    ->orWhere('email', 'like', $term)
+                    ->orWhere('phone', 'like', $term)
+                    ->orWhere('message', 'like', $term));
+            })
             ->latest()
             ->paginate(20);
     }
@@ -60,6 +77,8 @@ new #[Title('Quote requests')] class extends Component {
         <flux:heading size="xl">Quote requests</flux:heading>
         <flux:text>Messages from the contact form: custom quotes, warehousing, fulfillment and business accounts.</flux:text>
     </div>
+
+    <div class="w-full sm:w-80"><flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" placeholder="Name, company, email or message" clearable /></div>
 
     <flux:radio.group wire:model.live="status" variant="segmented" class="max-w-xl">
         <flux:radio value="" label="All" />

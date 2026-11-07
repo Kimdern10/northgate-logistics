@@ -175,6 +175,25 @@ test('site settings change what the website shows', function () {
     $this->get(route('home'))->assertSee('Swift Cargo')->assertSee('Cargo without the drama.');
 });
 
+test('quote requests and branches can be searched live', function () {
+    Enquiry::factory()->create(['name' => 'Jessica Turner', 'company' => 'Glow Naturals', 'status' => 'new']);
+    Enquiry::factory()->create(['name' => 'Robert Hayes', 'company' => 'Hayes Imports', 'status' => 'new']);
+    Branch::factory()->create(['name' => 'Miami Hub', 'city' => 'Miami']);
+    Branch::factory()->create(['name' => 'Chicago Branch', 'city' => 'Chicago']);
+
+    Livewire::actingAs(admin())->test('pages::admin.enquiries')
+        ->set('search', 'glow')
+        ->assertSee('Jessica Turner')
+        ->assertDontSee('Robert Hayes');
+
+    Livewire::actingAs(admin())->test('pages::admin.branches')
+        ->set('search', 'chic')
+        ->assertSee('Chicago Branch')
+        ->assertDontSee('Miami Hub')
+        ->set('search', 'zzz')
+        ->assertSee('No branches match');
+});
+
 test('enquiries can be marked as handled', function () {
     $enquiry = Enquiry::factory()->create();
 

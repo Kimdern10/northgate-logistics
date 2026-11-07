@@ -2,6 +2,7 @@
 
 use App\Enums\ShipmentStatus;
 use App\Models\Shipment;
+use Livewire\Livewire;
 
 function trackedShipment(): Shipment
 {
@@ -40,13 +41,41 @@ test('the public page does not show who the parcel is for or where it goes exact
         ->assertDontSee('221B Baker Street');
 });
 
-test('the tracking form tidies the number and goes to the shipment page', function () {
+test('the tracking search tidies what was typed and shows the shipment', function () {
     trackedShipment();
 
     $this->get(route('track', ['number' => ' nt 1234-567890 ']))
-        ->assertRedirect(route('track.show', 'NT1234567890'));
+        ->assertOk()
+        ->assertSee('NT1234567890')
+        ->assertSee('Departed on flight to London.');
 
     $this->get(route('track.show', 'nt1234567890'))->assertOk()->assertSee('NT1234567890');
+});
+
+test('tracking results appear live as the number is typed', function () {
+    trackedShipment();
+
+    Livewire::test('pages::track')
+        ->assertSee('Your tracking number')
+        ->set('number', 'NT1234')
+        ->assertSee('Keep typing')
+        ->assertDontSee('We couldn')
+        ->set('number', 'NT1234567890')
+        ->assertSee('In transit')
+        ->assertSee('Departed on flight to London.')
+        ->set('number', 'NT1234567899')
+        ->assertSee("We couldn't find NT1234567899", false);
+});
+
+test('live tracking lookups are limited per visitor', function () {
+    trackedShipment();
+    $component = Livewire::test('pages::track');
+
+    foreach (range(1, 60) as $attempt) {
+        $component->set('number', 'NT12345678'.str_pad((string) ($attempt % 100), 2, '0', STR_PAD_LEFT));
+    }
+
+    $component->set('number', 'NT1234567890')->assertSee('Too many lookups');
 });
 
 test('an unknown tracking number says so with a 404', function () {

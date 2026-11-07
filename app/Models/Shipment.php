@@ -66,6 +66,11 @@ class Shipment extends Model
     /** @use HasFactory<ShipmentFactory> */
     use HasFactory;
 
+    /**
+     * Most tracking numbers looked up in one go, like UPS and FedEx allow.
+     */
+    public const int MAX_TRACKED_AT_ONCE = 10;
+
     protected $attributes = [
         'status' => 'booked',
         'source' => 'admin',
@@ -144,6 +149,23 @@ class Shipment extends Model
     public static function normaliseTrackingNumber(string $number): string
     {
         return strtoupper((string) preg_replace('/[^A-Za-z0-9]/', '', $number));
+    }
+
+    /**
+     * Pick out every "NT + 10 digits" in what a visitor typed, even with spaces or dashes inside
+     * ("NT 482-730 1956"). Text that holds no full number is returned tidied as a single entry.
+     *
+     * @return list<string>
+     */
+    public static function parseTrackingNumbers(string $input): array
+    {
+        preg_match_all('/n\s*t(?:[\s\-]*\d){10}/i', $input, $matches);
+
+        return array_values(collect($matches[0] ?: [$input])
+            ->map(fn (string $number): string => self::normaliseTrackingNumber($number))
+            ->filter()
+            ->unique()
+            ->all());
     }
 
     public static function findByTrackingNumber(string $number): ?self

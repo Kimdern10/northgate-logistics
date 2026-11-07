@@ -10,12 +10,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::get('services', [PageController::class, 'services'])->name('services.index');
 Route::get('services/{service}', [PageController::class, 'service'])->name('services.show');
-Route::get('locations', [PageController::class, 'locations'])->name('locations');
+Route::livewire('locations', 'pages::locations')->name('locations');
 Route::view('about', 'pages.about')->name('about');
 Route::view('privacy', 'pages.privacy')->name('privacy');
 
 Route::middleware('throttle:tracking')->group(function () {
-    Route::get('track', [TrackingController::class, 'search'])->name('track');
+    Route::livewire('track', 'pages::track')->name('track');
     Route::get('track/{number}', [TrackingController::class, 'show'])->name('track.show');
 });
 

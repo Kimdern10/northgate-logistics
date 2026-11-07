@@ -6,6 +6,7 @@ use Flux\Flux;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 new #[Title('Branches & hubs')] class extends Component {
@@ -35,10 +36,25 @@ new #[Title('Branches & hubs')] class extends Component {
 
     public bool $is_active = true;
 
+    #[Url(except: '')]
+    public string $search = '';
+
     #[Computed]
     public function branches()
     {
-        return Branch::query()->orderBy('country')->orderBy('city')->get();
+        return Branch::query()
+            ->when(trim($this->search) !== '', function ($query): void {
+                $term = '%'.trim($this->search).'%';
+                $query->where(fn ($query) => $query
+                    ->where('name', 'like', $term)
+                    ->orWhere('city', 'like', $term)
+                    ->orWhere('address', 'like', $term)
+                    ->orWhere('country', 'like', $term)
+                    ->orWhere('phone', 'like', $term));
+            })
+            ->orderBy('country')
+            ->orderBy('city')
+            ->get();
     }
 
     public function create(): void
@@ -108,6 +124,8 @@ new #[Title('Branches & hubs')] class extends Component {
         <flux:button variant="primary" icon="plus" wire:click="create">Add branch</flux:button>
     </div>
 
+    <div class="w-full sm:w-80"><flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" placeholder="Name, city, address or phone" clearable /></div>
+
     <flux:table>
         <flux:table.columns>
             <flux:table.column>Name</flux:table.column>
@@ -117,7 +135,7 @@ new #[Title('Branches & hubs')] class extends Component {
             <flux:table.column></flux:table.column>
         </flux:table.columns>
         <flux:table.rows>
-            @foreach ($this->branches as $branch)
+            @forelse ($this->branches as $branch)
                 <flux:table.row :key="$branch->id">
                     <flux:table.cell>{{ $branch->name }} @unless ($branch->is_active)<flux:badge size="sm">Hidden</flux:badge>@endunless</flux:table.cell>
                     <flux:table.cell>{{ $branch->city }}, {{ $branch->countryName() }}</flux:table.cell>
@@ -128,7 +146,9 @@ new #[Title('Branches & hubs')] class extends Component {
                         <flux:button size="xs" variant="ghost" icon="trash" wire:click="delete({{ $branch->id }})" wire:confirm="Delete {{ $branch->name }}?" aria-label="Delete" />
                     </flux:table.cell>
                 </flux:table.row>
-            @endforeach
+            @empty
+                <flux:table.row><flux:table.cell colspan="5">No branches match "{{ $search }}".</flux:table.cell></flux:table.row>
+            @endforelse
         </flux:table.rows>
     </flux:table>
 
