@@ -16,7 +16,7 @@ use Livewire\Livewire;
 
 beforeEach(function () {
     Mail::fake();
-    Rate::factory()->create(['service_level' => ServiceLevel::Express, 'zone' => Zone::International, 'base_fee_cents' => 3500, 'per_kg_cents' => 1100, 'max_days' => 5]);
+    Rate::factory()->create(['service_level' => ServiceLevel::Express, 'zone' => Zone::International, 'base_fee_cents' => 3500, 'per_lb_cents' => 1100, 'max_days' => 5]);
     Setting::put(['fuel_surcharge_percent' => 0, 'notify_email' => 'ops@northgate.example']);
 });
 
@@ -39,7 +39,7 @@ function pickupForm(array $overrides = []): array
         'receiver_country' => 'GB',
         'contents' => 'Fashion samples',
         'pieces' => '1',
-        'weight_kg' => '3',
+        'weight_lb' => '3',
         'service_level' => 'express',
         'pickup_date' => now()->addDay()->toDateString(),
         'agree' => true,
@@ -104,9 +104,9 @@ test('the waybill PDF needs a signed link', function () {
 });
 
 test('the form checks the details', function () {
-    fillPickupForm(['sender_email' => 'not-an-email', 'weight_kg' => '0', 'pickup_date' => now()->subDay()->toDateString(), 'agree' => false])
+    fillPickupForm(['sender_email' => 'not-an-email', 'weight_lb' => '0', 'pickup_date' => now()->subDay()->toDateString(), 'agree' => false])
         ->call('book')
-        ->assertHasErrors(['sender_email', 'weight_kg', 'pickup_date', 'agree']);
+        ->assertHasErrors(['sender_email', 'weight_lb', 'pickup_date', 'agree']);
 
     expect(Shipment::query()->count())->toBe(0);
 });
@@ -144,6 +144,6 @@ test('the quote page link fills in the booking form', function () {
         ->test('pages::ship')
         ->assertSet('sender_country', 'GH')
         ->assertSet('receiver_country', 'US')
-        ->assertSet('weight_kg', '4')
+        ->assertSet('weight_lb', '4')
         ->assertSet('service_level', 'economy');
 });

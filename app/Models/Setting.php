@@ -40,7 +40,7 @@ class Setting extends Model
         'stat_deliveries' => '250000',
         'stat_warehouse_sqm' => '200000',
         'fuel_surcharge_percent' => '8',
-        'volumetric_divisor' => '5000',
+        'volumetric_divisor' => '139',
     ];
 
     private const string CACHE_KEY = 'site-settings';

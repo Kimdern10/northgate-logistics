@@ -8,8 +8,8 @@ use Livewire\Livewire;
 
 beforeEach(function () {
     Setting::put(['fuel_surcharge_percent' => 0]);
-    Rate::factory()->create(['service_level' => ServiceLevel::Standard, 'zone' => Zone::International, 'base_fee_cents' => 2000, 'per_kg_cents' => 700]);
-    Rate::factory()->create(['service_level' => ServiceLevel::Express, 'zone' => Zone::Regional, 'base_fee_cents' => 2500, 'per_kg_cents' => 600]);
+    Rate::factory()->create(['service_level' => ServiceLevel::Standard, 'zone' => Zone::International, 'base_fee_cents' => 2000, 'per_lb_cents' => 700]);
+    Rate::factory()->create(['service_level' => ServiceLevel::Express, 'zone' => Zone::Regional, 'base_fee_cents' => 2500, 'per_lb_cents' => 600]);
 });
 
 test('the calculator shows a price for each service on the route', function () {

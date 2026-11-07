@@ -39,7 +39,7 @@ class ShipmentFactory extends Factory
             'receiver_country' => 'GB',
             'contents' => fake()->randomElement(['Clothing', 'Documents', 'Phone accessories', 'Cosmetics', 'Books']),
             'pieces' => fake()->numberBetween(1, 4),
-            'weight_kg' => fake()->randomFloat(1, 0.5, 40),
+            'weight_lb' => fake()->randomFloat(1, 0.5, 40),
             'declared_value_cents' => fake()->numberBetween(20, 900) * 100,
             'price_cents' => fake()->numberBetween(40, 600) * 100,
             'pickup_date' => now()->addDay()->toDateString(),

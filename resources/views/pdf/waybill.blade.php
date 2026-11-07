@@ -74,7 +74,7 @@
         <tr>
             <td><div class="label">Contents</div>{{ $shipment->contents }}</td>
             <td><div class="label">Pieces</div>{{ $shipment->pieces }}</td>
-            <td><div class="label">Weight</div>{{ rtrim(rtrim(number_format($shipment->weight_kg, 2), '0'), '.') }} kg</td>
+            <td><div class="label">Weight</div>{{ rtrim(rtrim(number_format($shipment->weight_lb, 2), '0'), '.') }} lb</td>
             <td><div class="label">Dimensions</div>{{ $shipment->dimensions() ?? '—' }}</td>
         </tr>
         <tr>
@@ -108,7 +108,7 @@
             <td style="text-align: right;">
                 <img src="{{ $barcode }}" style="height: 48px;" alt=""><br>
                 <strong style="letter-spacing: 2px;">{{ $shipment->tracking_number }}</strong><br>
-                {{ $shipment->pieces }} pc · {{ rtrim(rtrim(number_format($shipment->weight_kg, 2), '0'), '.') }} kg · {{ $shipment->service_level->label() }}
+                {{ $shipment->pieces }} pc · {{ rtrim(rtrim(number_format($shipment->weight_lb, 2), '0'), '.') }} lb · {{ $shipment->service_level->label() }}
             </td>
         </tr>
     </table>

@@ -46,13 +46,13 @@ new class extends Component {
 
     public string $pieces = '1';
 
-    public string $weight_kg = '';
+    public string $weight_lb = '';
 
-    public string $length_cm = '';
+    public string $length_in = '';
 
-    public string $width_cm = '';
+    public string $width_in = '';
 
-    public string $height_cm = '';
+    public string $height_in = '';
 
     public string $declared_value = '0';
 
@@ -98,7 +98,7 @@ new class extends Component {
         return [
             'sender_name', 'sender_company', 'sender_email', 'sender_phone', 'sender_address', 'sender_city', 'sender_country',
             'receiver_name', 'receiver_company', 'receiver_email', 'receiver_phone', 'receiver_address', 'receiver_city', 'receiver_country',
-            'contents', 'pieces', 'weight_kg', 'length_cm', 'width_cm', 'height_cm', 'service_level', 'pickup_date', 'estimated_delivery_date', 'notes',
+            'contents', 'pieces', 'weight_lb', 'length_in', 'width_in', 'height_in', 'service_level', 'pickup_date', 'estimated_delivery_date', 'notes',
         ];
     }
 
@@ -126,10 +126,10 @@ new class extends Component {
             'receiver_country' => $country,
             'contents' => ['required', 'string', 'max:255'],
             'pieces' => ['required', 'integer', 'min:1', 'max:999'],
-            'weight_kg' => ['required', 'numeric', 'min:0.1', 'max:100000'],
-            'length_cm' => ['nullable', 'integer', 'min:1', 'max:2000'],
-            'width_cm' => ['nullable', 'integer', 'min:1', 'max:2000'],
-            'height_cm' => ['nullable', 'integer', 'min:1', 'max:2000'],
+            'weight_lb' => ['required', 'numeric', 'min:0.1', 'max:100000'],
+            'length_in' => ['nullable', 'integer', 'min:1', 'max:2000'],
+            'width_in' => ['nullable', 'integer', 'min:1', 'max:2000'],
+            'height_in' => ['nullable', 'integer', 'min:1', 'max:2000'],
             'declared_value' => ['nullable', 'numeric', 'min:0'],
             'price' => ['required', 'numeric', 'min:0'],
             'service_level' => ['required', Rule::enum(ServiceLevel::class)],
@@ -145,16 +145,16 @@ new class extends Component {
      */
     public function calculate(RateCalculator $calculator): void
     {
-        $this->validateOnly('weight_kg');
+        $this->validateOnly('weight_lb');
 
         $quote = $calculator->quote(
             ServiceLevel::from($this->service_level),
             $this->sender_country,
             $this->receiver_country,
-            (float) $this->weight_kg,
-            ctype_digit($this->length_cm) ? (int) $this->length_cm : null,
-            ctype_digit($this->width_cm) ? (int) $this->width_cm : null,
-            ctype_digit($this->height_cm) ? (int) $this->height_cm : null,
+            (float) $this->weight_lb,
+            ctype_digit($this->length_in) ? (int) $this->length_in : null,
+            ctype_digit($this->width_in) ? (int) $this->width_in : null,
+            ctype_digit($this->height_in) ? (int) $this->height_in : null,
         );
 
         if (! $quote) {
@@ -242,10 +242,10 @@ new class extends Component {
             <flux:input wire:model="contents" label="Contents" />
             <div class="grid gap-4 sm:grid-cols-3 lg:grid-cols-6">
                 <flux:input wire:model="pieces" type="number" label="Pieces" />
-                <flux:input wire:model="weight_kg" type="number" step="0.01" label="Weight (kg)" />
-                <flux:input wire:model="length_cm" type="number" label="Length (cm)" />
-                <flux:input wire:model="width_cm" type="number" label="Width (cm)" />
-                <flux:input wire:model="height_cm" type="number" label="Height (cm)" />
+                <flux:input wire:model="weight_lb" type="number" step="0.01" label="Weight (lb)" />
+                <flux:input wire:model="length_in" type="number" label="Length (in)" />
+                <flux:input wire:model="width_in" type="number" label="Width (in)" />
+                <flux:input wire:model="height_in" type="number" label="Height (in)" />
                 <flux:input wire:model="declared_value" type="number" step="0.01" label="Value (USD)" />
             </div>
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

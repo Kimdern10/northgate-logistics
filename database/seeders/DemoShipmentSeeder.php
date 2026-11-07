@@ -40,7 +40,7 @@ class DemoShipmentSeeder extends Seeder
 
     public function run(): void
     {
-        // [tracking number or null, from city, from country, to city, to country, service, stage reached, contents, kg]
+        // [tracking number or null, from city, from country, to city, to country, service, stage reached, contents, lb]
         $shipments = [
             ['NT1000000001', 'New York', 'US', 'London', 'GB', ServiceLevel::Express, 3, 'Fashion samples', 4.5],
             ['NT1000000002', 'Chicago', 'US', 'Houston', 'US', ServiceLevel::Standard, 7, 'Legal documents', 0.8],
@@ -95,7 +95,7 @@ class DemoShipmentSeeder extends Seeder
                 'receiver_country' => $toCountry,
                 'contents' => $contents,
                 'pieces' => $kg > 50 ? 3 : 1,
-                'weight_kg' => $kg,
+                'weight_lb' => $kg,
                 'declared_value_cents' => (int) round($kg * 2500),
                 'price_cents' => $quote?->totalCents() ?? 0,
                 'pickup_date' => $startedAt->addDay()->toDateString(),

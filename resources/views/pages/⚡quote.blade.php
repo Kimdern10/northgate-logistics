@@ -36,10 +36,10 @@ new class extends Component {
         return [
             'fromCountry' => ['required', Rule::in(Countries::codes())],
             'toCountry' => ['required', Rule::in(Countries::codes())],
-            'weight' => ['required', 'numeric', 'min:0.1', 'max:5000'],
-            'length' => ['nullable', 'integer', 'min:1', 'max:600'],
-            'width' => ['nullable', 'integer', 'min:1', 'max:600'],
-            'height' => ['nullable', 'integer', 'min:1', 'max:600'],
+            'weight' => ['required', 'numeric', 'min:0.1', 'max:10000'],
+            'length' => ['nullable', 'integer', 'min:1', 'max:240'],
+            'width' => ['nullable', 'integer', 'min:1', 'max:240'],
+            'height' => ['nullable', 'integer', 'min:1', 'max:240'],
         ];
     }
 
@@ -132,22 +132,22 @@ new class extends Component {
                 </div>
 
                 <label class="field">
-                    <span>Weight (kg)</span>
+                    <span>Weight (lb)</span>
                     <input type="number" inputmode="decimal" step="0.1" min="0.1" wire:model.live.debounce.400ms="weight">
                     @error('weight') <small class="error">{{ $message }}</small> @enderror
                 </label>
 
                 <fieldset class="field">
-                    <legend>Box size in cm <em>(optional)</em></legend>
+                    <legend>Box size in inches <em>(optional)</em></legend>
                     <div class="dims">
-                        <input type="number" inputmode="numeric" placeholder="Length" aria-label="Length in cm" wire:model.live.debounce.400ms="length">
-                        <input type="number" inputmode="numeric" placeholder="Width" aria-label="Width in cm" wire:model.live.debounce.400ms="width">
-                        <input type="number" inputmode="numeric" placeholder="Height" aria-label="Height in cm" wire:model.live.debounce.400ms="height">
+                        <input type="number" inputmode="numeric" placeholder="Length" aria-label="Length in inches" wire:model.live.debounce.400ms="length">
+                        <input type="number" inputmode="numeric" placeholder="Width" aria-label="Width in inches" wire:model.live.debounce.400ms="width">
+                        <input type="number" inputmode="numeric" placeholder="Height" aria-label="Height in inches" wire:model.live.debounce.400ms="height">
                     </div>
                     @error('length') <small class="error">{{ $message }}</small> @enderror
                     @error('width') <small class="error">{{ $message }}</small> @enderror
                     @error('height') <small class="error">{{ $message }}</small> @enderror
-                    <small class="hint">Big, light boxes are charged by size: length × width × height ÷ {{ \App\Models\Setting::int('volumetric_divisor') ?: 5000 }}.</small>
+                    <small class="hint">Big, light boxes are charged by size: length × width × height ÷ {{ \App\Models\Setting::int('volumetric_divisor') ?: 139 }}.</small>
                 </fieldset>
             </form>
 
@@ -167,7 +167,7 @@ new class extends Component {
                             <p>{{ $quote->level->summary() }}</p>
                             <p class="quote-meta">
                                 <span><x-icon name="clock" /> {{ $quote->transitTime() }}</span>
-                                <span><x-icon name="box" /> Charged on {{ rtrim(rtrim(number_format($quote->chargeableWeightKg, 1), '0'), '.') }} kg</span>
+                                <span><x-icon name="box" /> Charged on {{ rtrim(rtrim(number_format($quote->chargeableWeightLb, 1), '0'), '.') }} lb</span>
                             </p>
                         </div>
                         <div class="quote-price">

@@ -46,13 +46,13 @@ new class extends Component {
 
     public string $pieces = '1';
 
-    public string $weight_kg = '';
+    public string $weight_lb = '';
 
-    public string $length_cm = '';
+    public string $length_in = '';
 
-    public string $width_cm = '';
+    public string $width_in = '';
 
-    public string $height_cm = '';
+    public string $height_in = '';
 
     public string $declared_value = '';
 
@@ -103,7 +103,7 @@ new class extends Component {
         $this->receiver_country = in_array($query['to'] ?? null, $codes, true) ? $query['to'] : $this->receiver_country;
         $this->service_level = ServiceLevel::tryFrom((string) ($query['service'] ?? ''))?->value ?? $this->service_level;
 
-        foreach (['weight' => 'weight_kg', 'l' => 'length_cm', 'w' => 'width_cm', 'h' => 'height_cm'] as $key => $property) {
+        foreach (['weight' => 'weight_lb', 'l' => 'length_in', 'w' => 'width_in', 'h' => 'height_in'] as $key => $property) {
             if (is_numeric($query[$key] ?? null)) {
                 $this->{$property} = (string) $query[$key];
             }
@@ -137,10 +137,10 @@ new class extends Component {
 
         $this->contents = $previous->contents;
         $this->pieces = (string) $previous->pieces;
-        $this->weight_kg = (string) $previous->weight_kg;
-        $this->length_cm = (string) $previous->length_cm;
-        $this->width_cm = (string) $previous->width_cm;
-        $this->height_cm = (string) $previous->height_cm;
+        $this->weight_lb = (string) $previous->weight_lb;
+        $this->length_in = (string) $previous->length_in;
+        $this->width_in = (string) $previous->width_in;
+        $this->height_in = (string) $previous->height_in;
         $this->service_level = $previous->service_level->value;
         $this->pickup_date = now()->addWeekday()->toDateString();
     }
@@ -193,10 +193,10 @@ new class extends Component {
         return $rules + [
             'contents' => ['required', 'string', 'max:255'],
             'pieces' => ['required', 'integer', 'min:1', 'max:999'],
-            'weight_kg' => ['required', 'numeric', 'min:0.1', 'max:5000'],
-            'length_cm' => ['nullable', 'integer', 'min:1', 'max:600'],
-            'width_cm' => ['nullable', 'integer', 'min:1', 'max:600'],
-            'height_cm' => ['nullable', 'integer', 'min:1', 'max:600'],
+            'weight_lb' => ['required', 'numeric', 'min:0.1', 'max:10000'],
+            'length_in' => ['nullable', 'integer', 'min:1', 'max:240'],
+            'width_in' => ['nullable', 'integer', 'min:1', 'max:240'],
+            'height_in' => ['nullable', 'integer', 'min:1', 'max:240'],
             'declared_value' => ['nullable', 'numeric', 'min:0', 'max:1000000'],
             'service_level' => ['required', Rule::enum(ServiceLevel::class)],
             'pickup_date' => ['required', 'date', 'after_or_equal:today', 'before:'.now()->addDays(31)->toDateString()],
@@ -217,7 +217,7 @@ new class extends Component {
             'sender_address' => 'pickup address', 'sender_city' => 'pickup city', 'sender_country' => 'pickup country',
             'receiver_name' => "receiver's name", 'receiver_email' => "receiver's email", 'receiver_phone' => "receiver's phone",
             'receiver_address' => 'delivery address', 'receiver_city' => 'delivery city', 'receiver_country' => 'delivery country',
-            'weight_kg' => 'weight', 'length_cm' => 'length', 'width_cm' => 'width', 'height_cm' => 'height',
+            'weight_lb' => 'weight', 'length_in' => 'length', 'width_in' => 'width', 'height_in' => 'height',
             'agree' => 'terms',
         ];
     }
@@ -230,14 +230,14 @@ new class extends Component {
     #[Computed]
     public function quotes(): array
     {
-        if (! is_numeric($this->weight_kg) || (float) $this->weight_kg <= 0 || (float) $this->weight_kg > 5000) {
+        if (! is_numeric($this->weight_lb) || (float) $this->weight_lb <= 0 || (float) $this->weight_lb > 10000) {
             return [];
         }
 
-        $dimension = fn (string $value): ?int => ctype_digit($value) && (int) $value <= 600 ? (int) $value : null;
+        $dimension = fn (string $value): ?int => ctype_digit($value) && (int) $value <= 240 ? (int) $value : null;
 
         return app(RateCalculator::class)
-            ->quotes($this->sender_country, $this->receiver_country, (float) $this->weight_kg, $dimension($this->length_cm), $dimension($this->width_cm), $dimension($this->height_cm))
+            ->quotes($this->sender_country, $this->receiver_country, (float) $this->weight_lb, $dimension($this->length_in), $dimension($this->width_in), $dimension($this->height_in))
             ->keyBy(fn (Quote $quote): string => $quote->level->value)
             ->all();
     }
@@ -363,13 +363,13 @@ new class extends Component {
                     <x-field label="What's inside?" model="contents" placeholder="e.g. Clothing samples, documents, phone accessories" />
                     <div class="grid-3">
                         <x-field label="Pieces" model="pieces" type="number" />
-                        <x-field label="Total weight (kg)" model="weight_kg" type="number" step="0.1" live />
+                        <x-field label="Total weight (lb)" model="weight_lb" type="number" step="0.1" live />
                         <x-field label="Value (USD, optional)" model="declared_value" type="number" hint="For customs." />
                     </div>
                     <div class="grid-3">
-                        <x-field label="Length (cm)" model="length_cm" type="number" live />
-                        <x-field label="Width (cm)" model="width_cm" type="number" live />
-                        <x-field label="Height (cm)" model="height_cm" type="number" live />
+                        <x-field label="Length (in)" model="length_in" type="number" live />
+                        <x-field label="Width (in)" model="width_in" type="number" live />
+                        <x-field label="Height (in)" model="height_in" type="number" live />
                     </div>
                     <div class="grid-2">
                         <x-field label="Pickup date" model="pickup_date" type="date" :min="now()->toDateString()" />
@@ -405,7 +405,7 @@ new class extends Component {
                     @if ($chosen = $this->quotes[$service_level] ?? null)
                         <dl class="summary-lines">
                             <div><dt>Base fee</dt><dd>{{ Money::format($chosen->baseFeeCents) }}</dd></div>
-                            <div><dt>{{ rtrim(rtrim(number_format($chosen->chargeableWeightKg, 1), '0'), '.') }} kg</dt><dd>{{ Money::format($chosen->weightChargeCents) }}</dd></div>
+                            <div><dt>{{ rtrim(rtrim(number_format($chosen->chargeableWeightLb, 1), '0'), '.') }} lb</dt><dd>{{ Money::format($chosen->weightChargeCents) }}</dd></div>
                             <div><dt>Fuel surcharge</dt><dd>{{ Money::format($chosen->fuelSurchargeCents) }}</dd></div>
                             <div class="summary-total"><dt>Estimated total</dt><dd>{{ $chosen->total() }}</dd></div>
                         </dl>

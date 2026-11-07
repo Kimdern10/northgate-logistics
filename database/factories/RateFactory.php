@@ -23,7 +23,7 @@ class RateFactory extends Factory
             'service_level' => ServiceLevel::Standard,
             'zone' => Zone::International,
             'base_fee_cents' => 2500,
-            'per_kg_cents' => 900,
+            'per_lb_cents' => 900,
             'min_days' => 4,
             'max_days' => 7,
             'is_active' => true,

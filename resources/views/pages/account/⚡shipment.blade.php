@@ -136,7 +136,7 @@ new class extends Component {
                 <flux:heading class="mb-3">Parcel</flux:heading>
                 <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                     <dt class="text-zinc-500">Contents</dt><dd>{{ $shipment->contents }}</dd>
-                    <dt class="text-zinc-500">Pieces / weight</dt><dd>{{ $shipment->pieces }} · {{ $shipment->weight_kg }} kg</dd>
+                    <dt class="text-zinc-500">Pieces / weight</dt><dd>{{ $shipment->pieces }} · {{ $shipment->weight_lb }} lb</dd>
                     @if ($this->isParty())
                         <dt class="text-zinc-500">Price</dt><dd>{{ Money::format($shipment->price_cents) }}</dd>
                     @endif

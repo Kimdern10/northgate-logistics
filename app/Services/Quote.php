@@ -16,9 +16,9 @@ final readonly class Quote
     public function __construct(
         public ServiceLevel $level,
         public Zone $zone,
-        public float $actualWeightKg,
-        public float $volumetricWeightKg,
-        public float $chargeableWeightKg,
+        public float $actualWeightLb,
+        public float $volumetricWeightLb,
+        public float $chargeableWeightLb,
         public int $baseFeeCents,
         public int $weightChargeCents,
         public int $fuelSurchargeCents,

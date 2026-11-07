@@ -12,9 +12,9 @@ use Illuminate\Support\Collection;
 /**
  * Prices a shipment from the rates the owner sets in the admin.
  *
- * Price = base fee + (price per kg × chargeable weight) + fuel surcharge.
+ * Price = base fee + (price per lb × chargeable weight) + fuel surcharge.
  * Chargeable weight is the larger of the real weight and the volumetric weight
- * (length × width × height ÷ divisor), rounded up to the next half kilo.
+ * (length × width × height ÷ divisor), rounded up to the next whole pound (as UPS and FedEx bill).
  */
 class RateCalculator
 {
@@ -31,15 +31,15 @@ class RateCalculator
             : Zone::International;
     }
 
-    public static function volumetricWeight(?int $lengthCm, ?int $widthCm, ?int $heightCm): float
+    public static function volumetricWeight(?int $lengthIn, ?int $widthIn, ?int $heightIn): float
     {
-        if (! $lengthCm || ! $widthCm || ! $heightCm) {
+        if (! $lengthIn || ! $widthIn || ! $heightIn) {
             return 0.0;
         }
 
-        $divisor = max(1, Setting::int('volumetric_divisor') ?: 5000);
+        $divisor = max(1, Setting::int('volumetric_divisor') ?: 139);
 
-        return round($lengthCm * $widthCm * $heightCm / $divisor, 2);
+        return round($lengthIn * $widthIn * $heightIn / $divisor, 2);
     }
 
     /**
@@ -47,7 +47,7 @@ class RateCalculator
      *
      * @return Collection<int, Quote>
      */
-    public function quotes(string $fromCountry, string $toCountry, float $weightKg, ?int $lengthCm = null, ?int $widthCm = null, ?int $heightCm = null): Collection
+    public function quotes(string $fromCountry, string $toCountry, float $weightLb, ?int $lengthIn = null, ?int $widthIn = null, ?int $heightIn = null): Collection
     {
         $zone = self::zoneFor($fromCountry, $toCountry);
         $fastestFirst = array_flip(array_map(fn (ServiceLevel $level): string => $level->value, ServiceLevel::cases()));
@@ -57,30 +57,30 @@ class RateCalculator
             ->where('is_active', true)
             ->get()
             ->sortBy(fn (Rate $rate): int => $fastestFirst[$rate->service_level->value])
-            ->map(fn (Rate $rate): Quote => $this->price($rate, $weightKg, $lengthCm, $widthCm, $heightCm))
+            ->map(fn (Rate $rate): Quote => $this->price($rate, $weightLb, $lengthIn, $widthIn, $heightIn))
             ->values();
     }
 
-    public function quote(ServiceLevel $level, string $fromCountry, string $toCountry, float $weightKg, ?int $lengthCm = null, ?int $widthCm = null, ?int $heightCm = null): ?Quote
+    public function quote(ServiceLevel $level, string $fromCountry, string $toCountry, float $weightLb, ?int $lengthIn = null, ?int $widthIn = null, ?int $heightIn = null): ?Quote
     {
-        return $this->quotes($fromCountry, $toCountry, $weightKg, $lengthCm, $widthCm, $heightCm)
+        return $this->quotes($fromCountry, $toCountry, $weightLb, $lengthIn, $widthIn, $heightIn)
             ->first(fn (Quote $quote): bool => $quote->level === $level);
     }
 
-    private function price(Rate $rate, float $weightKg, ?int $lengthCm, ?int $widthCm, ?int $heightCm): Quote
+    private function price(Rate $rate, float $weightLb, ?int $lengthIn, ?int $widthIn, ?int $heightIn): Quote
     {
-        $volumetric = self::volumetricWeight($lengthCm, $widthCm, $heightCm);
-        $chargeable = max(0.5, ceil(max($weightKg, $volumetric) * 2) / 2);
+        $volumetric = self::volumetricWeight($lengthIn, $widthIn, $heightIn);
+        $chargeable = max(1.0, ceil(max($weightLb, $volumetric)));
 
-        $weightCharge = (int) round($rate->per_kg_cents * $chargeable);
+        $weightCharge = (int) round($rate->per_lb_cents * $chargeable);
         $fuel = (int) round(($rate->base_fee_cents + $weightCharge) * max(0, (float) Setting::get('fuel_surcharge_percent')) / 100);
 
         return new Quote(
             level: $rate->service_level,
             zone: $rate->zone,
-            actualWeightKg: $weightKg,
-            volumetricWeightKg: $volumetric,
-            chargeableWeightKg: $chargeable,
+            actualWeightLb: $weightLb,
+            volumetricWeightLb: $volumetric,
+            chargeableWeightLb: $chargeable,
             baseFeeCents: $rate->base_fee_cents,
             weightChargeCents: $weightCharge,
             fuelSurchargeCents: $fuel,

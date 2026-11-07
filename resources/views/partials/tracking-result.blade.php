@@ -41,7 +41,7 @@
         <dl class="facts">
             <div><dt>Service</dt><dd>{{ $shipment->service_level->label() }}</dd></div>
             <div><dt>For</dt><dd>{{ $shipment->receiverShortName() }}</dd></div>
-            <div><dt>Pieces</dt><dd>{{ $shipment->pieces }} · {{ rtrim(rtrim(number_format($shipment->weight_kg, 2), '0'), '.') }} kg</dd></div>
+            <div><dt>Pieces</dt><dd>{{ $shipment->pieces }} · {{ rtrim(rtrim(number_format($shipment->weight_lb, 2), '0'), '.') }} lb</dd></div>
             @if ($shipment->status === ShipmentStatus::Delivered && $shipment->delivered_at)
                 <div><dt>Delivered</dt><dd>{{ $shipment->delivered_at->format('D j M Y, g:i a') }}@if ($shipment->received_by)<br><small>Signed by {{ $shipment->received_by }}</small>@endif</dd></div>
             @elseif ($shipment->estimated_delivery_date)

@@ -52,7 +52,7 @@ test('logging in takes staff to the admin dashboard', function () {
 });
 
 test('staff can create a shipment with a tracking number', function () {
-    Rate::factory()->create(['service_level' => ServiceLevel::Standard, 'zone' => Zone::International, 'base_fee_cents' => 2000, 'per_kg_cents' => 700]);
+    Rate::factory()->create(['service_level' => ServiceLevel::Standard, 'zone' => Zone::International, 'base_fee_cents' => 2000, 'per_lb_cents' => 700]);
     Setting::put(['fuel_surcharge_percent' => 0]);
 
     $component = Livewire::actingAs(admin())->test('pages::admin.shipments.form')
@@ -65,7 +65,7 @@ test('staff can create a shipment with a tracking number', function () {
         ->set('receiver_address', '1 Park Lane')
         ->set('receiver_city', 'London')
         ->set('contents', 'Books')
-        ->set('weight_kg', '2')
+        ->set('weight_lb', '2')
         ->set('service_level', 'standard')
         ->set('initial_status', 'at_hub')
         ->call('calculate')
@@ -123,7 +123,7 @@ test('rates can be changed and switched off', function () {
     Livewire::actingAs(admin())->test('pages::admin.rates')
         ->set('rates.standard_international.active', true)
         ->set('rates.standard_international.base', '18.50')
-        ->set('rates.standard_international.per_kg', '6')
+        ->set('rates.standard_international.per_lb', '6')
         ->set('rates.standard_international.min_days', '4')
         ->set('rates.standard_international.max_days', '8')
         ->set('rates.express_domestic.active', false)
@@ -134,7 +134,7 @@ test('rates can be changed and switched off', function () {
     $rate = Rate::query()->where(['service_level' => 'standard', 'zone' => 'international'])->sole();
 
     expect($rate->base_fee_cents)->toBe(1850)
-        ->and($rate->per_kg_cents)->toBe(600)
+        ->and($rate->per_lb_cents)->toBe(600)
         ->and(Rate::query()->where(['service_level' => 'express', 'zone' => 'domestic'])->sole()->is_active)->toBeFalse()
         ->and(Setting::get('fuel_surcharge_percent'))->toBe('5');
 });

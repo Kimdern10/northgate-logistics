@@ -13,7 +13,7 @@ new #[Title('Rates')] class extends Component {
     /**
      * One row per service level and zone, keyed "express_domestic".
      *
-     * @var array<string, array{base: string, per_kg: string, min_days: string, max_days: string, active: bool}>
+     * @var array<string, array{base: string, per_lb: string, min_days: string, max_days: string, active: bool}>
      */
     public array $rates = [];
 
@@ -30,7 +30,7 @@ new #[Title('Rates')] class extends Component {
                 $rate = $saved[$level->value.'_'.$zone->value] ?? null;
                 $this->rates[$level->value.'_'.$zone->value] = [
                     'base' => $rate ? Money::toDecimal($rate->base_fee_cents) : '',
-                    'per_kg' => $rate ? Money::toDecimal($rate->per_kg_cents) : '',
+                    'per_lb' => $rate ? Money::toDecimal($rate->per_lb_cents) : '',
                     'min_days' => (string) ($rate->min_days ?? ''),
                     'max_days' => (string) ($rate->max_days ?? ''),
                     'active' => $rate->is_active ?? false,
@@ -46,11 +46,11 @@ new #[Title('Rates')] class extends Component {
     {
         $this->validate([
             'rates.*.base' => ['required_if_accepted:rates.*.active', 'nullable', 'numeric', 'min:0', 'max:100000'],
-            'rates.*.per_kg' => ['required_if_accepted:rates.*.active', 'nullable', 'numeric', 'min:0', 'max:10000'],
+            'rates.*.per_lb' => ['required_if_accepted:rates.*.active', 'nullable', 'numeric', 'min:0', 'max:10000'],
             'rates.*.min_days' => ['required_if_accepted:rates.*.active', 'nullable', 'integer', 'min:0', 'max:180'],
             'rates.*.max_days' => ['required_if_accepted:rates.*.active', 'nullable', 'integer', 'min:0', 'max:180', 'gte:rates.*.min_days'],
             'fuel_surcharge_percent' => ['required', 'numeric', 'min:0', 'max:100'],
-            'volumetric_divisor' => ['required', 'integer', 'min:1000', 'max:10000'],
+            'volumetric_divisor' => ['required', 'integer', 'min:100', 'max:400'],
         ], [
             'rates.*.*.required_if_accepted' => 'Fill this in or switch the rate off.',
             'rates.*.max_days.gte' => 'Must be at least the minimum.',
@@ -67,7 +67,7 @@ new #[Title('Rates')] class extends Component {
 
             Rate::query()->updateOrCreate(['service_level' => $level, 'zone' => $zone], [
                 'base_fee_cents' => Money::toCents($row['base']),
-                'per_kg_cents' => Money::toCents($row['per_kg']),
+                'per_lb_cents' => Money::toCents($row['per_lb']),
                 'min_days' => (int) $row['min_days'],
                 'max_days' => (int) $row['max_days'],
                 'is_active' => $row['active'],
@@ -86,7 +86,7 @@ new #[Title('Rates')] class extends Component {
 <div class="flex max-w-5xl flex-col gap-6">
     <div>
         <flux:heading size="xl">Rates</flux:heading>
-        <flux:text>Price = base fee + (price per kg × chargeable weight) + fuel surcharge. Chargeable weight is the bigger of the real weight and the size weight, rounded up to the next 0.5 kg.</flux:text>
+        <flux:text>Price = base fee + (price per lb × chargeable weight) + fuel surcharge. Chargeable weight is the bigger of the real weight and the size weight, rounded up to the next whole pound.</flux:text>
     </div>
 
     <form wire:submit="save" class="flex flex-col gap-6">
@@ -103,7 +103,7 @@ new #[Title('Rates')] class extends Component {
                             <flux:switch wire:model="rates.{{ $key }}.active" :label="$zone->label()" />
                         </div>
                         <flux:input wire:model="rates.{{ $key }}.base" type="number" step="0.01" label="Base fee ($)" size="sm" />
-                        <flux:input wire:model="rates.{{ $key }}.per_kg" type="number" step="0.01" label="Per kg ($)" size="sm" />
+                        <flux:input wire:model="rates.{{ $key }}.per_lb" type="number" step="0.01" label="Per lb ($)" size="sm" />
                         <flux:input wire:model="rates.{{ $key }}.min_days" type="number" label="Min days" size="sm" />
                         <flux:input wire:model="rates.{{ $key }}.max_days" type="number" label="Max days" size="sm" />
                     </div>
@@ -113,7 +113,7 @@ new #[Title('Rates')] class extends Component {
 
         <flux:card class="grid gap-4 sm:grid-cols-2">
             <flux:input wire:model="fuel_surcharge_percent" type="number" step="0.1" label="Fuel surcharge (%)" description="Added on top of base fee + weight charge." />
-            <flux:input wire:model="volumetric_divisor" type="number" label="Size weight divisor" description="Length × width × height (cm) ÷ this number = size weight in kg. 5000 is the airline standard." />
+            <flux:input wire:model="volumetric_divisor" type="number" label="Size weight divisor" description="Length × width × height (inches) ÷ this number = size weight in lb. 139 is the US standard used by UPS and FedEx." />
         </flux:card>
 
         <div><flux:button type="submit" variant="primary">Save rates</flux:button></div>

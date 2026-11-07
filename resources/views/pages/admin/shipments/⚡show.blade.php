@@ -193,7 +193,7 @@ new class extends Component {
                 <flux:heading class="mb-3">Parcel</flux:heading>
                 <dl class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                     <dt class="text-zinc-500">Contents</dt><dd>{{ $shipment->contents }}</dd>
-                    <dt class="text-zinc-500">Pieces / weight</dt><dd>{{ $shipment->pieces }} · {{ $shipment->weight_kg }} kg</dd>
+                    <dt class="text-zinc-500">Pieces / weight</dt><dd>{{ $shipment->pieces }} · {{ $shipment->weight_lb }} lb</dd>
                     <dt class="text-zinc-500">Size</dt><dd>{{ $shipment->dimensions() ?? '—' }}</dd>
                     <dt class="text-zinc-500">Declared value</dt><dd>{{ Money::format($shipment->declared_value_cents) }}</dd>
                     <dt class="text-zinc-500">Price</dt><dd class="font-medium">{{ Money::format($shipment->price_cents) }}</dd>

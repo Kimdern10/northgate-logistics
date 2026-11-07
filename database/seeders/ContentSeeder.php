@@ -32,7 +32,7 @@ class ContentSeeder extends Seeder
                 "Our express service is the fastest way to send documents and parcels abroad. We collect from your door, fly your shipment on the next available flight and deliver to the receiver's door.\n\nEvery parcel is scanned at each step, so you and your receiver can follow it online and get an email at every update.",
                 ['Pickup from your home or office', 'Priority handling and next-flight departure', 'Customs paperwork prepared for you', 'Email updates at every step', 'Proof of delivery with signature']],
             ['Air Freight', 'globe', 'Consolidated and dedicated air cargo for heavier shipments that still need to move fast.',
-                "For cargo from 45 kg to several tons, our air freight team books space with leading airlines and handles the airway bill, customs and delivery.\n\nChoose consolidated freight to save money, or a dedicated booking when the date matters most.",
+                "For cargo from 100 lb to several tons, our air freight team books space with leading airlines and handles the airway bill, customs and delivery.\n\nChoose consolidated freight to save money, or a dedicated booking when the date matters most.",
                 ['Airport-to-airport or door-to-door', 'Consolidated and dedicated options', 'Dangerous goods advice', 'Cargo insurance on request']],
             ['Ocean Freight', 'ship', 'Full containers (FCL) and shared containers (LCL) from US ports to Europe, Asia, Africa and Latin America.',
                 "Ocean freight is the best value for heavy or bulky goods. Book a full 20ft or 40ft container, or share a container and pay only for the space you use.\n\nWe sail from New York/New Jersey, Los Angeles/Long Beach, Savannah and Houston, and arrange port handling, customs clearance and final delivery by truck.",
@@ -96,30 +96,30 @@ class ContentSeeder extends Seeder
 
     private function rates(): void
     {
-        // [base fee, per kg, min days, max days] in US dollars
+        // [base fee, per lb, min days, max days] in US dollars
         $rates = [
             ServiceLevel::Express->value => [
-                Zone::Domestic->value => [8, 1.5, 1, 2],
-                Zone::Regional->value => [25, 6, 2, 3],
-                Zone::International->value => [35, 11, 2, 5],
+                Zone::Domestic->value => [8, 0.70, 1, 2],
+                Zone::Regional->value => [25, 2.75, 2, 3],
+                Zone::International->value => [35, 5.00, 2, 5],
             ],
             ServiceLevel::Standard->value => [
-                Zone::Domestic->value => [5, 0.8, 2, 4],
-                Zone::Regional->value => [15, 4, 4, 7],
-                Zone::International->value => [20, 7, 5, 10],
+                Zone::Domestic->value => [5, 0.35, 2, 4],
+                Zone::Regional->value => [15, 1.80, 4, 7],
+                Zone::International->value => [20, 3.20, 5, 10],
             ],
             ServiceLevel::Economy->value => [
-                Zone::Domestic->value => [4, 0.4, 3, 6],
-                Zone::Regional->value => [12, 1.8, 10, 20],
-                Zone::International->value => [15, 2.2, 25, 45],
+                Zone::Domestic->value => [4, 0.20, 3, 6],
+                Zone::Regional->value => [12, 0.80, 10, 20],
+                Zone::International->value => [15, 1.00, 25, 45],
             ],
         ];
 
         foreach ($rates as $level => $zones) {
-            foreach ($zones as $zone => [$base, $perKg, $min, $max]) {
+            foreach ($zones as $zone => [$base, $perLb, $min, $max]) {
                 Rate::query()->updateOrCreate(['service_level' => $level, 'zone' => $zone], [
                     'base_fee_cents' => (int) round($base * 100),
-                    'per_kg_cents' => (int) round($perKg * 100),
+                    'per_lb_cents' => (int) round($perLb * 100),
                     'min_days' => $min,
                     'max_days' => $max,
                     'is_active' => true,
@@ -154,7 +154,7 @@ class ContentSeeder extends Seeder
     {
         $faqs = [
             ['How do I track my shipment?', 'Type your tracking number into the box on the home page or the Track page. You will see every update, with the place and time. We also email the sender and receiver at each step.'],
-            ['How is the price worked out?', 'Price is a base fee plus a price per kilogram for the service and distance, plus a small fuel surcharge. Large, light boxes are charged by size (length × width × height ÷ 5000) if that is more than the real weight.'],
+            ['How is the price worked out?', 'Price is a base fee plus a price per pound for the service and distance, plus a small fuel surcharge. Large, light boxes are charged by size (length × width × height in inches ÷ 139) if that is more than the real weight.'],
             ['Can you collect from my home or office?', 'Yes. Book a pickup online, choose a date and our courier will collect from your address. You can also drop parcels at any branch.'],
             ['What can I not send?', 'We cannot carry explosives, flammable liquids, weapons, illegal drugs, cash or live animals. Some countries also restrict food, medicines and batteries. Ask us if you are not sure.'],
             ['Who pays customs duties?', 'Unless agreed otherwise, the receiver pays any duties and taxes charged by the destination country. Our customs team can pay them for you and add them to your invoice.'],

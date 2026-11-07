@@ -7,7 +7,7 @@
 - Sender: {{ $request->sender_name }}, {{ $request->sender_phone }}
 - Pickup: {{ $request->sender_address }}, {{ $request->origin() }}{{ $request->pickup_date ? ' on '.$request->pickup_date->format('D j M Y') : '' }}
 - To: {{ $request->receiver_name }}, {{ $request->destination() }}
-- Contents: {{ $request->contents }} ({{ $request->pieces }} {{ str('piece')->plural($request->pieces) }}, {{ $request->weight_kg }} kg)
+- Contents: {{ $request->contents }} ({{ $request->pieces }} {{ str('piece')->plural($request->pieces) }}, {{ $request->weight_lb }} lb)
 @else
 # New enquiry: {{ $request->typeLabel() }}
 

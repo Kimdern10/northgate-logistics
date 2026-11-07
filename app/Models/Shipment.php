@@ -40,10 +40,10 @@ use Illuminate\Support\Str;
  * @property string $receiver_country
  * @property string $contents
  * @property int $pieces
- * @property float $weight_kg
- * @property int|null $length_cm
- * @property int|null $width_cm
- * @property int|null $height_cm
+ * @property float $weight_lb
+ * @property int|null $length_in
+ * @property int|null $width_in
+ * @property int|null $height_in
  * @property int $declared_value_cents
  * @property int $price_cents
  * @property Carbon|null $pickup_date
@@ -58,7 +58,7 @@ use Illuminate\Support\Str;
     'user_id', 'status', 'service_level', 'source',
     'sender_name', 'sender_company', 'sender_email', 'sender_phone', 'sender_address', 'sender_city', 'sender_country',
     'receiver_name', 'receiver_company', 'receiver_email', 'receiver_phone', 'receiver_address', 'receiver_city', 'receiver_country',
-    'contents', 'pieces', 'weight_kg', 'length_cm', 'width_cm', 'height_cm', 'declared_value_cents', 'price_cents',
+    'contents', 'pieces', 'weight_lb', 'length_in', 'width_in', 'height_in', 'declared_value_cents', 'price_cents',
     'pickup_date', 'estimated_delivery_date', 'delivered_at', 'received_by', 'notes',
 ])]
 class Shipment extends Model
@@ -94,7 +94,7 @@ class Shipment extends Model
         return [
             'status' => ShipmentStatus::class,
             'service_level' => ServiceLevel::class,
-            'weight_kg' => 'float',
+            'weight_lb' => 'float',
             'pickup_date' => 'date',
             'estimated_delivery_date' => 'date',
             'delivered_at' => 'datetime',
@@ -192,8 +192,8 @@ class Shipment extends Model
 
     public function dimensions(): ?string
     {
-        return $this->length_cm && $this->width_cm && $this->height_cm
-            ? "{$this->length_cm} × {$this->width_cm} × {$this->height_cm} cm"
+        return $this->length_in && $this->width_in && $this->height_in
+            ? "{$this->length_in} × {$this->width_in} × {$this->height_in} in"
             : null;
     }
 

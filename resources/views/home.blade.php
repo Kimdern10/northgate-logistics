@@ -95,7 +95,7 @@
                         </label>
                     </div>
                     <label class="field">
-                        <span>Weight (kg)</span>
+                        <span>Weight (lb)</span>
                         <input name="weight" type="number" step="0.1" min="0.1" value="2" inputmode="decimal">
                     </label>
                     <button class="btn btn--primary btn--block" type="submit">See prices</button>
