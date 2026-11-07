@@ -44,6 +44,18 @@ class DatabaseSeeder extends Seeder
             ->whereIn('status', [ShipmentStatus::Booked, ShipmentStatus::OutForDelivery])
             ->update(['driver_id' => $driver->id]);
 
+        // Delivered parcels have been paid, half online and half to the courier.
+        Shipment::query()->where('status', ShipmentStatus::Delivered)->get()->each(function (Shipment $shipment, int $index): void {
+            $shipment->markPaid($index % 2 === 0 ? 'card' : 'cash', $index % 2 === 0 ? 'pi_demo_'.$shipment->id : null);
+            $shipment->forceFill(['paid_at' => $shipment->created_at->addDay()])->save();
+        });
+
+        // The demo parcel to London has customs lines, so its commercial invoice can be tried.
+        Shipment::query()->where('tracking_number', 'NT1000000001')->first()?->forceFill(['export_reason' => 'sample'])->replaceCustomsItems([
+            ['description' => 'Cotton dresses (samples)', 'quantity' => 3, 'unit_value' => 45, 'origin_country' => 'US', 'hs_code' => '6204.42'],
+            ['description' => 'Silk scarves', 'quantity' => 4, 'unit_value' => 18.5, 'origin_country' => 'US', 'hs_code' => ''],
+        ]);
+
         // A customer account: sender of NT1000000001, so it sees that shipment and its own history.
         $customer = User::factory()->create([
             'name' => 'Emily Carter',
