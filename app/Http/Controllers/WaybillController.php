@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Shipment;
 use App\Support\CommercialInvoice;
+use App\Support\Receipt;
 use App\Support\Waybill;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -20,6 +21,7 @@ class WaybillController extends Controller
             'shipment' => $shipment,
             'waybillUrl' => Waybill::signedUrl($shipment),
             'invoiceUrl' => CommercialInvoice::isNeeded($shipment) ? CommercialInvoice::signedUrl($shipment) : null,
+            'receiptUrl' => Receipt::signedUrl($shipment),
         ]);
     }
 
@@ -61,5 +63,25 @@ class WaybillController extends Controller
     public function adminCommercialInvoice(Shipment $shipment): Response
     {
         return CommercialInvoice::download($shipment);
+    }
+
+    /**
+     * Signed link from the booking page.
+     */
+    public function receipt(Shipment $shipment): Response
+    {
+        return Receipt::download($shipment);
+    }
+
+    public function accountReceipt(Shipment $shipment): Response
+    {
+        Gate::authorize('downloadWaybill', $shipment);
+
+        return Receipt::download($shipment);
+    }
+
+    public function adminReceipt(Shipment $shipment): Response
+    {
+        return Receipt::download($shipment);
     }
 }

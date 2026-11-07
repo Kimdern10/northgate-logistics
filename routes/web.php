@@ -27,6 +27,7 @@ Route::livewire('contact', 'pages::contact')->name('contact');
 Route::get('ship/booked/{shipment:tracking_number}', [WaybillController::class, 'booked'])->middleware('signed')->name('ship.booked');
 Route::get('waybill/{shipment:tracking_number}', [WaybillController::class, 'download'])->middleware('signed')->name('waybill');
 Route::get('commercial-invoice/{shipment:tracking_number}', [WaybillController::class, 'commercialInvoice'])->middleware('signed')->name('commercial-invoice');
+Route::get('receipt/{shipment:tracking_number}', [WaybillController::class, 'receipt'])->middleware('signed')->name('receipt');
 
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
@@ -40,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::livewire('account/shipments/{shipment:tracking_number}', 'pages::account.shipment')->name('account.shipments.show');
     Route::get('account/shipments/{shipment:tracking_number}/waybill', [WaybillController::class, 'account'])->name('account.shipments.waybill');
     Route::get('account/shipments/{shipment:tracking_number}/commercial-invoice', [WaybillController::class, 'accountCommercialInvoice'])->name('account.shipments.invoice');
+    Route::get('account/shipments/{shipment:tracking_number}/receipt', [WaybillController::class, 'accountReceipt'])->name('account.shipments.receipt');
     Route::livewire('account/addresses', 'pages::account.addresses')->name('account.addresses');
     Route::get('shipments/{shipment:tracking_number}/proof-of-delivery', ProofOfDeliveryController::class)->name('shipments.proof');
 });

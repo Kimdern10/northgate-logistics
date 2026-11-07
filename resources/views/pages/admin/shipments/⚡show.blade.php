@@ -20,6 +20,23 @@ new class extends Component {
     /** Proof of delivery photo, sent with a "Delivered" update. */
     public $deliveryPhoto = null;
 
+    public string $paymentMethod = 'cash';
+
+    public string $paymentReference = '';
+
+    public function markPaid(): void
+    {
+        $validated = $this->validate([
+            'paymentMethod' => ['required', Rule::in(array_keys(Shipment::PAYMENT_METHODS))],
+            'paymentReference' => ['nullable', 'string', 'max:120'],
+        ]);
+
+        $this->shipment->markPaid($validated['paymentMethod'], $validated['paymentReference'] ?: null);
+        $this->reset('paymentReference');
+
+        Flux::toast(variant: 'success', text: 'Payment recorded. The customer can now download a receipt.');
+    }
+
     public string $status = '';
 
     public string $location = '';
@@ -140,6 +157,7 @@ new class extends Component {
             @if (\App\Support\CommercialInvoice::isNeeded($shipment))
                 <flux:button icon="document-text" :href="route('admin.shipments.invoice', $shipment)">Commercial invoice</flux:button>
             @endif
+            <flux:button icon="receipt-percent" :href="route('admin.shipments.receipt', $shipment)">{{ $shipment->isPaid() ? 'Receipt' : 'Invoice' }}</flux:button>
             <flux:button icon="eye" :href="route('track.show', $shipment->tracking_number)" target="_blank">Public page</flux:button>
             <flux:button icon="pencil-square" :href="route('admin.shipments.edit', $shipment)" wire:navigate>Edit</flux:button>
         </div>
@@ -216,6 +234,13 @@ new class extends Component {
                     <dt class="text-zinc-500">Size</dt><dd>{{ $shipment->dimensions() ?? '—' }}</dd>
                     <dt class="text-zinc-500">Declared value</dt><dd>{{ Money::format($shipment->declared_value_cents) }}</dd>
                     <dt class="text-zinc-500">Price</dt><dd class="font-medium">{{ Money::format($shipment->price_cents) }}</dd>
+                    <dt class="text-zinc-500">Payment</dt>
+                    <dd>
+                        <flux:badge size="sm" :color="$shipment->payment_status->color()">{{ $shipment->payment_status->label() }}</flux:badge>
+                        @if ($shipment->isPaid())
+                            <div class="mt-1 text-xs text-zinc-500">{{ $shipment->paymentMethodLabel() }} · {{ $shipment->paid_at?->format('j M Y') }}{{ $shipment->payment_reference ? ' · '.$shipment->payment_reference : '' }}</div>
+                        @endif
+                    </dd>
                     <dt class="text-zinc-500">Pickup date</dt><dd>{{ $shipment->pickup_date?->format('D j M Y') ?? '—' }}</dd>
                     <dt class="text-zinc-500">Expected by</dt><dd>{{ $shipment->estimated_delivery_date?->format('D j M Y') ?? '—' }}</dd>
                     @if ($shipment->delivered_at)
@@ -234,6 +259,23 @@ new class extends Component {
                     <flux:text>{{ $shipment->notes }}</flux:text>
                 @endif
             </flux:card>
+
+            @unless ($shipment->isPaid())
+                <flux:card class="flex flex-col gap-3">
+                    <flux:heading>Record a payment</flux:heading>
+                    <flux:text>For money taken by the courier or by transfer. Card payments made online are recorded automatically.</flux:text>
+                    <form wire:submit="markPaid" class="flex flex-col gap-3">
+                        <flux:select wire:model="paymentMethod" label="How was it paid?">
+                            @foreach (Shipment::PAYMENT_METHODS as $value => $label)
+                                @continue($value === 'card')
+                                <flux:select.option :value="$value">{{ $label }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                        <flux:input wire:model="paymentReference" label="Reference (optional)" placeholder="Receipt or transfer number" />
+                        <div><flux:button type="submit" size="sm" variant="primary" icon="check">Mark {{ Money::format($shipment->price_cents) }} as paid</flux:button></div>
+                    </form>
+                </flux:card>
+            @endunless
 
             @if ($shipment->items->isNotEmpty())
                 <flux:card>

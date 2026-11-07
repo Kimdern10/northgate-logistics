@@ -34,6 +34,10 @@ class BookShipment
                 'service_level' => $quote->level,
                 'source' => 'website',
                 'price_cents' => $quote->totalCents(),
+                'base_fee_cents' => $quote->baseFeeCents,
+                'weight_charge_cents' => $quote->weightChargeCents,
+                'fuel_surcharge_cents' => $quote->fuelSurchargeCents,
+                'chargeable_weight_lb' => $quote->chargeableWeightLb,
                 'estimated_delivery_date' => $quote->estimatedDeliveryDate($pickupDate),
             ]);
 

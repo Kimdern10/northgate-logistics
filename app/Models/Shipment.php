@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PaymentStatus;
 use App\Enums\ServiceLevel;
 use App\Enums\ShipmentStatus;
 use App\Support\Countries;
@@ -50,6 +51,14 @@ use Illuminate\Support\Str;
  * @property Carbon|null $pickup_date
  * @property Carbon|null $estimated_delivery_date
  * @property Carbon|null $delivered_at
+ * @property int|null $base_fee_cents
+ * @property int|null $weight_charge_cents
+ * @property int|null $fuel_surcharge_cents
+ * @property float|null $chargeable_weight_lb
+ * @property PaymentStatus $payment_status
+ * @property string|null $payment_method
+ * @property string|null $payment_reference
+ * @property Carbon|null $paid_at
  * @property string|null $export_reason
  * @property string|null $received_by
  * @property string|null $delivery_photo_path
@@ -61,6 +70,8 @@ use Illuminate\Support\Str;
     'user_id', 'status', 'service_level', 'source',
     'sender_name', 'sender_company', 'sender_email', 'sender_phone', 'sender_address', 'sender_city', 'sender_country',
     'receiver_name', 'receiver_company', 'receiver_email', 'receiver_phone', 'receiver_address', 'receiver_city', 'receiver_country',
+    'base_fee_cents', 'weight_charge_cents', 'fuel_surcharge_cents', 'chargeable_weight_lb',
+    'payment_status', 'payment_method', 'payment_reference', 'paid_at',
     'contents', 'export_reason', 'pieces', 'weight_lb', 'length_in', 'width_in', 'height_in', 'declared_value_cents', 'price_cents',
     'pickup_date', 'estimated_delivery_date', 'delivered_at', 'received_by', 'notes',
 ])]
@@ -88,9 +99,23 @@ class Shipment extends Model
         'return' => 'Return or repair',
     ];
 
+    /**
+     * How a shipment was paid.
+     *
+     * @var array<string, string>
+     */
+    public const array PAYMENT_METHODS = [
+        'card' => 'Card (online)',
+        'card_at_pickup' => 'Card at pickup',
+        'cash' => 'Cash at pickup',
+        'transfer' => 'Bank transfer',
+        'account' => 'Business account (invoiced)',
+    ];
+
     protected $attributes = [
         'status' => 'booked',
         'source' => 'admin',
+        'payment_status' => 'unpaid',
     ];
 
     protected static function booted(): void
@@ -111,6 +136,9 @@ class Shipment extends Model
         return [
             'status' => ShipmentStatus::class,
             'service_level' => ServiceLevel::class,
+            'payment_status' => PaymentStatus::class,
+            'paid_at' => 'datetime',
+            'chargeable_weight_lb' => 'float',
             'weight_lb' => 'float',
             'pickup_date' => 'date',
             'estimated_delivery_date' => 'date',
@@ -146,6 +174,26 @@ class Shipment extends Model
     public function items(): HasMany
     {
         return $this->hasMany(ShipmentItem::class)->orderBy('id');
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->payment_status === PaymentStatus::Paid;
+    }
+
+    public function markPaid(string $method, ?string $reference = null): void
+    {
+        $this->forceFill([
+            'payment_status' => PaymentStatus::Paid,
+            'payment_method' => $method,
+            'payment_reference' => $reference,
+            'paid_at' => now(),
+        ])->save();
+    }
+
+    public function paymentMethodLabel(): ?string
+    {
+        return $this->payment_method ? (self::PAYMENT_METHODS[$this->payment_method] ?? ucfirst($this->payment_method)) : null;
     }
 
     public function crossesBorder(): bool

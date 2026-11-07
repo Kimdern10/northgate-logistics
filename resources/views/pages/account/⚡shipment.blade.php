@@ -68,6 +68,7 @@ new class extends Component {
                 @if (\App\Support\CommercialInvoice::isNeeded($shipment))
                     <flux:button icon="document-text" :href="route('account.shipments.invoice', $shipment)">Commercial invoice</flux:button>
                 @endif
+                <flux:button icon="receipt-percent" :href="route('account.shipments.receipt', $shipment)">{{ $shipment->isPaid() ? 'Receipt' : 'Invoice' }}</flux:button>
                 <flux:button icon="arrow-path" :href="route('ship', ['again' => $shipment->tracking_number])">Ship again</flux:button>
             @endcan
             <flux:button icon="share" :href="route('track.show', $shipment->tracking_number)" target="_blank">Public tracking page</flux:button>
