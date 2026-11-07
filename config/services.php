@@ -14,6 +14,13 @@ return [
     |
     */
 
+    // Online card payments. Leave empty to hide "Pay online" (customers then pay the courier).
+    'stripe' => [
+        'key' => env('STRIPE_KEY'),
+        'secret' => env('STRIPE_SECRET'),
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

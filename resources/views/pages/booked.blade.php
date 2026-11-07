@@ -12,12 +12,25 @@
                     <button type="button" class="btn btn--ghost btn--sm" data-copy-button="{{ $shipment->tracking_number }}">Copy</button>
                 </div>
 
+                @if (session('paid'))
+                    <p class="alert alert--success">Payment received, thank you! Your receipt is ready below.</p>
+                @elseif (session('payment_failed'))
+                    <p class="alert alert--error">The card payment did not go through. You can try again, or pay the courier at pickup.</p>
+                @endif
+
+                @if (! $shipment->isPaid() && $payUrl)
+                    <div class="pay-box">
+                        <span><strong>{{ \App\Support\Money::format($shipment->price_cents) }}</strong> to pay. Pay now by card, or pay the courier at pickup.</span>
+                        <a class="btn btn--primary btn--sm" href="{{ $payUrl }}">Pay now by card</a>
+                    </div>
+                @endif
+
                 <dl class="facts">
                     <div><dt>From</dt><dd>{{ $shipment->origin() }}</dd></div>
                     <div><dt>To</dt><dd>{{ $shipment->destination() }}</dd></div>
                     <div><dt>Service</dt><dd>{{ $shipment->service_level->label() }}</dd></div>
                     <div><dt>Pickup</dt><dd>{{ $shipment->pickup_date?->format('D j M Y') }}</dd></div>
-                    <div><dt>Estimated price</dt><dd>{{ \App\Support\Money::format($shipment->price_cents) }}</dd></div>
+                    <div><dt>{{ $shipment->isPaid() ? 'Paid' : 'Estimated price' }}</dt><dd>{{ \App\Support\Money::format($shipment->price_cents) }}</dd></div>
                     <div><dt>Expected by</dt><dd>{{ $shipment->estimated_delivery_date?->format('D j M Y') }}</dd></div>
                 </dl>
 

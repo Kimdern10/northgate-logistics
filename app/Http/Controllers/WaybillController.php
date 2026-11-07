@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Shipment;
+use App\Services\StripeCheckout;
 use App\Support\CommercialInvoice;
 use App\Support\Receipt;
 use App\Support\Waybill;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -22,6 +24,9 @@ class WaybillController extends Controller
             'waybillUrl' => Waybill::signedUrl($shipment),
             'invoiceUrl' => CommercialInvoice::isNeeded($shipment) ? CommercialInvoice::signedUrl($shipment) : null,
             'receiptUrl' => Receipt::signedUrl($shipment),
+            'payUrl' => app(StripeCheckout::class)->isEnabled()
+                ? URL::temporarySignedRoute('pay', now()->addDay(), ['shipment' => $shipment->tracking_number])
+                : null,
         ]);
     }
 

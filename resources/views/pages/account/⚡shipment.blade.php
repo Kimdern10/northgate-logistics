@@ -108,6 +108,25 @@ new class extends Component {
         </flux:callout>
     @endif
 
+    @if (session('paid'))
+        <flux:callout icon="check-circle" color="green" heading="Payment received, thank you!">
+            <flux:callout.text>Your receipt is ready: use the Receipt button above.</flux:callout.text>
+        </flux:callout>
+    @elseif (session('payment_failed'))
+        <flux:callout icon="exclamation-triangle" color="red" heading="The card payment did not go through.">
+            <flux:callout.text>You can try again, or pay the courier at pickup.</flux:callout.text>
+        </flux:callout>
+    @endif
+
+    @can('downloadWaybill', $shipment)
+        @if (! $shipment->isPaid() && app(\App\Services\StripeCheckout::class)->isEnabled())
+            <flux:card class="flex flex-wrap items-center justify-between gap-3">
+                <flux:text><strong>{{ \App\Support\Money::format($shipment->price_cents) }}</strong> to pay. Pay now by card, or pay the courier at pickup.</flux:text>
+                <flux:button variant="primary" icon="credit-card" :href="route('account.shipments.pay', $shipment)">Pay now by card</flux:button>
+            </flux:card>
+        @endif
+    @endcan
+
     @if ($shipment->delivery_photo_path)
         @can('viewProofOfDelivery', $shipment)
             <flux:card class="flex flex-col gap-3 sm:flex-row sm:items-center">

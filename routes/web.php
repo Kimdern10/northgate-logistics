@@ -2,8 +2,10 @@
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProofOfDeliveryController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\TrackingController;
 use App\Http\Controllers\WaybillController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +31,11 @@ Route::get('waybill/{shipment:tracking_number}', [WaybillController::class, 'dow
 Route::get('commercial-invoice/{shipment:tracking_number}', [WaybillController::class, 'commercialInvoice'])->middleware('signed')->name('commercial-invoice');
 Route::get('receipt/{shipment:tracking_number}', [WaybillController::class, 'receipt'])->middleware('signed')->name('receipt');
 
+// Online card payment (Stripe Checkout).
+Route::get('pay/{shipment:tracking_number}', [PaymentController::class, 'start'])->middleware('signed')->name('pay');
+Route::get('pay/{shipment:tracking_number}/done', [PaymentController::class, 'done'])->name('pay.done');
+Route::post('stripe/webhook', StripeWebhookController::class)->name('stripe.webhook');
+
 Route::get('sitemap.xml', SitemapController::class)->name('sitemap');
 Route::get('robots.txt', [SitemapController::class, 'robots'])->name('robots');
 
@@ -42,6 +49,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('account/shipments/{shipment:tracking_number}/waybill', [WaybillController::class, 'account'])->name('account.shipments.waybill');
     Route::get('account/shipments/{shipment:tracking_number}/commercial-invoice', [WaybillController::class, 'accountCommercialInvoice'])->name('account.shipments.invoice');
     Route::get('account/shipments/{shipment:tracking_number}/receipt', [WaybillController::class, 'accountReceipt'])->name('account.shipments.receipt');
+    Route::get('account/shipments/{shipment:tracking_number}/pay', [PaymentController::class, 'startFromAccount'])->name('account.shipments.pay');
     Route::livewire('account/addresses', 'pages::account.addresses')->name('account.addresses');
     Route::get('shipments/{shipment:tracking_number}/proof-of-delivery', ProofOfDeliveryController::class)->name('shipments.proof');
 });

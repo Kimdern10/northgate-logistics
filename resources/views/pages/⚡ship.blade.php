@@ -6,6 +6,7 @@ use App\Enums\ServiceLevel;
 use App\Services\Quote;
 use App\Models\Shipment;
 use App\Services\RateCalculator;
+use App\Services\StripeCheckout;
 use App\Support\Countries;
 use App\Support\Money;
 use Illuminate\Support\Facades\RateLimiter;
@@ -60,6 +61,9 @@ new class extends ShipmentForm {
     public string $notes = '';
 
     public bool $agree = false;
+
+    /** pickup (pay the courier) or card (pay online now with Stripe). */
+    public string $payment_choice = 'pickup';
 
     /** Honeypot: hidden from people, filled in by spam bots. */
     public string $website = '';
@@ -219,6 +223,7 @@ new class extends ShipmentForm {
             'pickup_date' => ['required', 'date', 'after_or_equal:today', 'before:'.now()->addDays(31)->toDateString()],
             'notes' => ['nullable', 'string', 'max:1000'],
             'agree' => ['accepted'],
+            'payment_choice' => ['required', Rule::in(['pickup', 'card'])],
             'saveSender' => ['boolean'],
             'saveReceiver' => ['boolean'],
         ] + $this->customsRules();
@@ -287,13 +292,14 @@ new class extends ShipmentForm {
         RateLimiter::hit($key, 600);
 
         $details = collect($validated)
-            ->except(['declared_value', 'service_level', 'agree', 'saveSender', 'saveReceiver', 'items', 'export_reason'])
+            ->except(['declared_value', 'service_level', 'agree', 'payment_choice', 'saveSender', 'saveReceiver', 'items', 'export_reason'])
             ->map(fn ($value) => $value === '' ? null : $value)
             ->all();
         $details['declared_value_cents'] = Money::toCents($validated['declared_value'] ?? 0);
         $details['export_reason'] = $this->crossesBorder() ? $validated['export_reason'] : null;
 
         $shipment = $bookShipment->handle($details, $quote, auth()->user(), $this->crossesBorder() ? $validated['items'] : []);
+        $payOnline = $validated['payment_choice'] === 'card' && app(StripeCheckout::class)->isEnabled();
 
         if ($user = auth()->user()) {
             foreach (['sender' => $this->saveSender, 'receiver' => $this->saveReceiver] as $prefix => $save) {
@@ -307,10 +313,12 @@ new class extends ShipmentForm {
 
             session()->flash('booked', true);
 
-            return $this->redirectRoute('account.shipments.show', $shipment);
+            return $payOnline
+                ? $this->redirectRoute('account.shipments.pay', $shipment)
+                : $this->redirectRoute('account.shipments.show', $shipment);
         }
 
-        return $this->redirect(URL::temporarySignedRoute('ship.booked', now()->addDay(), ['shipment' => $shipment->tracking_number]));
+        return $this->redirect(URL::temporarySignedRoute($payOnline ? 'pay' : 'ship.booked', now()->addDay(), ['shipment' => $shipment->tracking_number]));
     }
 
     public function render()
@@ -441,6 +449,19 @@ new class extends ShipmentForm {
                     <div class="hp" aria-hidden="true">
                         <label>Website <input type="text" wire:model="website" tabindex="-1" autocomplete="off"></label>
                     </div>
+
+                    @if (app(StripeCheckout::class)->isEnabled())
+                        <div class="pay-choice" role="radiogroup" aria-label="How do you want to pay?">
+                            <label class="service-option">
+                                <input type="radio" value="card" wire:model="payment_choice">
+                                <span class="service-option__body"><strong>Pay online now</strong><small>Card, Apple Pay or Google Pay, on Stripe's secure page</small></span>
+                            </label>
+                            <label class="service-option">
+                                <input type="radio" value="pickup" wire:model="payment_choice">
+                                <span class="service-option__body"><strong>Pay at pickup</strong><small>Card, cash or transfer to the courier</small></span>
+                            </label>
+                        </div>
+                    @endif
 
                     <label class="check">
                         <input type="checkbox" wire:model="agree">
