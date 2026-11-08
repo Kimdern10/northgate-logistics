@@ -25,13 +25,15 @@ class VerifyEmailCode extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $business = Setting::get('business_name');
+        $site = Setting::values();
 
         return (new MailMessage)
-            ->subject(__(':code is your :site verification code', ['code' => $this->code, 'site' => $business]))
-            ->greeting(__('Verify your email'))
-            ->line(__('Enter this code on the :site verification page to finish creating your account:', ['site' => $business]))
-            ->line('**'.chunk_split($this->code, 3, ' ').'**')
-            ->line(__('The code works for :minutes minutes. If you did not create an account, you can ignore this email.', ['minutes' => $this->minutesValid]));
+            ->subject(__(':code is your :site verification code', ['code' => $this->code, 'site' => $site['business_name']]))
+            ->markdown('mail.verification-code', [
+                'site' => $site,
+                'name' => $notifiable->name ?? __('there'),
+                'code' => trim(chunk_split($this->code, 3, ' ')),
+                'minutes' => $this->minutesValid,
+            ]);
     }
 }
