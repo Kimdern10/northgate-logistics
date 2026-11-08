@@ -14,19 +14,27 @@ function lastSentEmail(): Email
     return $email;
 }
 
-test('emails carry the logo inside the message', function () {
+test('emails show the logo without adding an attachment', function () {
     $user = User::factory()->create(['name' => 'Dana Brooks']);
 
     $user->notify(new VerifyEmailCode('482913', 15));
 
     $email = lastSentEmail();
-    $inline = array_filter($email->getAttachments(), fn ($part) => $part->getDisposition() === 'inline');
 
-    expect($inline)->toHaveCount(1)
-        ->and(array_values($inline)[0]->getContentType())->toBe('image/png')
-        ->and($email->getHtmlBody())->toContain('Northgate Logistics')
+    expect($email->getAttachments())->toBeEmpty()
+        ->and($email->getHtmlBody())->toContain('logo-mark-m')
+        ->toContain('Northgate Logistics')
         ->toContain('482 913')
         ->toContain('Hi Dana Brooks');
+});
+
+test('once the site is online the email loads the logo picture from it', function () {
+    config(['app.url' => 'https://northgatelogistics.com']);
+    $user = User::factory()->create();
+
+    $user->notify(new VerifyEmailCode('482913', 15));
+
+    expect(lastSentEmail()->getHtmlBody())->toContain('src="https://northgatelogistics.com/images/mail-logo.png"');
 });
 
 test('the password reset email uses the branded layout', function () {

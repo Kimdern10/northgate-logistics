@@ -140,6 +140,36 @@ img {
     width: 44px;
 }
 
+/* Logo drawn with HTML (used until the site is online) */
+
+.logo-mark {
+    border-collapse: separate;
+}
+
+.logo-mark-cell {
+    background-color: #132f55;
+    border: 2px solid #3d5b85;
+    border-radius: 12px;
+    height: 44px;
+    line-height: 44px;
+    text-align: center;
+    width: 44px;
+}
+
+.logo-mark-m {
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 44px;
+}
+
+.logo-mark-dot {
+    color: #ff6b1a;
+    font-size: 12px;
+    line-height: 44px;
+    vertical-align: top;
+}
+
 /* Body */
 
 .body {
